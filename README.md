@@ -1,1 +1,1 @@
-# MiniPOS
+POS For My Personal Usage
