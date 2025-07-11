@@ -1,28 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { 
-  Settings as SettingsIcon, 
-  Save, 
-  Upload, 
-  Download, 
-  Moon, 
-  Sun, 
-  Globe, 
-  DollarSign,
-  Percent,
-  Building,
-  Users,
-  Plus,
-  Edit,
-  Trash2,
-  Shield,
-  Mail,
-  Send,
-  CheckCircle,
-  XCircle,
-  Loader
-} from 'lucide-react';
+import { Save, Upload, Download, Trash2, Plus, Edit, X, User, Shield, Mail, Send, Check } from 'lucide-react';
 import { DatabaseSettings } from '../database/localStorage';
 
 interface SettingsProps {
@@ -54,153 +33,56 @@ const Settings: React.FC<SettingsProps> = ({
 }) => {
   const { t, language, setLanguage } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const [activeSection, setActiveSection] = useState<'general' | 'users' | 'roles' | 'email'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'users' | 'roles' | 'email'>('general');
+  const [localSettings, setLocalSettings] = useState(settings || {});
   const [showUserModal, setShowUserModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editingRole, setEditingRole] = useState<any>(null);
-  const [isTestingEmail, setIsTestingEmail] = useState(false);
-  const [emailTestResult, setEmailTestResult] = useState<{ success: boolean; message: string } | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Form states
-  const [formData, setFormData] = useState({
-    restaurantName: settings?.restaurantName || 'Restaurant POS',
-    description: settings?.description || 'Professional Point of Sale System',
-    currency: settings?.currency || 'MMK',
-    taxRate: settings?.taxRate || 8.5,
-    serviceCharge: settings?.serviceCharge || 0,
-    serviceChargeEnabled: settings?.serviceChargeEnabled || false,
-    logo: settings?.logo || ''
-  });
-
   const [emailSettings, setEmailSettings] = useState({
-    provider: 'gmail',
-    smtpServer: 'smtp.gmail.com',
+    smtpServer: '',
     smtpPort: 587,
     smtpUsername: '',
     smtpPassword: '',
     fromEmail: '',
-    fromName: settings?.restaurantName || 'Restaurant POS',
+    fromName: '',
     enableTLS: true,
-    testEmail: ''
+    testEmailRecipient: ''
   });
+  const [emailTestStatus, setEmailTestStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [newUser, setNewUser] = useState({
-    name: '',
-    email: '',
-    roleId: 'waiter',
-    password: '',
-    confirmPassword: '',
-    isActive: true
-  });
-
-  const [newRole, setNewRole] = useState({
-    name: '',
-    permissions: [] as string[]
-  });
-
-  // Available permissions with descriptions
+  // Available permissions
   const availablePermissions = [
     { id: 'pos_access', name: 'POS Access', description: 'Access to POS system' },
     { id: 'pos_create_order', name: 'Create Orders', description: 'Create new orders' },
     { id: 'pos_complete_order', name: 'Complete Orders', description: 'Complete and finalize orders' },
     { id: 'pos_cancel_order', name: 'Cancel Orders', description: 'Cancel existing orders' },
     { id: 'pos_print_order', name: 'Print Orders', description: 'Print order receipts' },
-    { id: 'table_manage', name: 'Table Management', description: 'Manage restaurant tables' },
-    { id: 'reports_view', name: 'View Reports', description: 'View sales and analytics reports' },
+    { id: 'table_manage', name: 'Table Management', description: 'Manage table status and reservations' },
+    { id: 'reports_view', name: 'View Reports', description: 'Access to reports and analytics' },
     { id: 'reports_export', name: 'Export Reports', description: 'Export reports to PDF/Excel' },
     { id: 'menu_view', name: 'View Menu', description: 'View menu items and categories' },
     { id: 'menu_manage', name: 'Manage Menu', description: 'Add, edit, delete menu items' },
-    { id: 'category_manage', name: 'Manage Categories', description: 'Manage menu categories' },
-    { id: 'settings_view', name: 'View Settings', description: 'View system settings' },
+    { id: 'category_manage', name: 'Manage Categories', description: 'Add, edit, delete categories' },
+    { id: 'settings_view', name: 'View Settings', description: 'Access to settings page' },
     { id: 'settings_manage', name: 'Manage Settings', description: 'Modify system settings' },
-    { id: 'user_manage', name: 'User Management', description: 'Manage user accounts' },
-    { id: 'role_manage', name: 'Role Management', description: 'Manage user roles and permissions' },
+    { id: 'user_manage', name: 'User Management', description: 'Manage users and their roles' },
+    { id: 'role_manage', name: 'Role Management', description: 'Manage roles and permissions' },
     { id: 'database_manage', name: 'Database Management', description: 'Export/import database' }
   ];
 
-  const hasPermission = (permission: string) => {
-    return currentUserPermissions.includes(permission) || currentUserPermissions.length === 0;
-  };
-
-  // Load email settings from localStorage on component mount
-  React.useEffect(() => {
-    const savedEmailSettings = localStorage.getItem('restaurant_pos_email_settings');
-    if (savedEmailSettings) {
-      try {
-        const parsed = JSON.parse(savedEmailSettings);
-        setEmailSettings(prev => ({ ...prev, ...parsed }));
-      } catch (error) {
-        console.error('Error loading email settings:', error);
-      }
-    }
-  }, []);
-
-  // Email provider configurations
-  const emailProviders = {
-    gmail: {
-      name: 'Gmail',
-      smtpServer: 'smtp.gmail.com',
-      smtpPort: 587,
-      enableTLS: true,
-      instructions: 'Use your Gmail address and App Password (not regular password)'
-    },
-    office365: {
-      name: 'Office 365 / Outlook',
-      smtpServer: 'smtp-mail.outlook.com',
-      smtpPort: 587,
-      enableTLS: true,
-      instructions: 'Use your Office 365 email and password'
-    },
-    yahoo: {
-      name: 'Yahoo Mail',
-      smtpServer: 'smtp.mail.yahoo.com',
-      smtpPort: 587,
-      enableTLS: true,
-      instructions: 'Use your Yahoo email and App Password'
-    },
-    custom: {
-      name: 'Custom SMTP',
-      smtpServer: '',
-      smtpPort: 587,
-      enableTLS: true,
-      instructions: 'Enter your custom SMTP server details'
-    }
-  };
-
   const handleSaveSettings = () => {
-    onUpdateSettings(formData);
+    onUpdateSettings(localSettings);
     alert(t('settingsSaved'));
-  };
-
-  const handleSaveEmailSettings = () => {
-    try {
-      localStorage.setItem('restaurant_pos_email_settings', JSON.stringify(emailSettings));
-      alert('Email settings saved successfully!');
-    } catch (error) {
-      console.error('Error saving email settings:', error);
-      alert('Failed to save email settings. Please try again.');
-    }
-  };
-
-  const handleProviderChange = (provider: string) => {
-    const providerConfig = emailProviders[provider as keyof typeof emailProviders];
-    setEmailSettings(prev => ({
-      ...prev,
-      provider,
-      smtpServer: providerConfig.smtpServer,
-      smtpPort: providerConfig.smtpPort,
-      enableTLS: providerConfig.enableTLS
-    }));
   };
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.includes('image')) {
-      alert('Please upload an image file.');
+    if (!file.type.includes('image/')) {
+      alert('Please upload only image files.');
       return;
     }
 
@@ -237,7 +119,7 @@ const Settings: React.FC<SettingsProps> = ({
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
           const resizedImageData = canvas.toDataURL('image/jpeg', 0.8);
-          setFormData({ ...formData, logo: resizedImageData });
+          setLocalSettings({ ...localSettings, logo: resizedImageData });
         }
       };
       img.src = e.target?.result as string;
@@ -245,213 +127,144 @@ const Settings: React.FC<SettingsProps> = ({
     reader.readAsDataURL(file);
   };
 
-  const handleAddUser = () => {
-    if (!newUser.name || !newUser.email || !newUser.password) {
-      alert('Please fill in all required fields.');
-      return;
+  const handleExportDatabase = () => {
+    try {
+      const data = {
+        settings: localSettings,
+        users: users,
+        roles: roles,
+        exportDate: new Date().toISOString(),
+        version: '1.0'
+      };
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `restaurant-pos-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      alert('Database exported successfully!');
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Failed to export database.');
     }
-
-    if (newUser.password !== newUser.confirmPassword) {
-      alert('Passwords do not match.');
-      return;
-    }
-
-    if (users.some(user => user.email === newUser.email)) {
-      alert('Email already exists.');
-      return;
-    }
-
-    onAddUser({
-      name: newUser.name,
-      email: newUser.email,
-      roleId: newUser.roleId,
-      password: newUser.password,
-      isActive: newUser.isActive
-    });
-
-    setNewUser({
-      name: '',
-      email: '',
-      roleId: 'waiter',
-      password: '',
-      confirmPassword: '',
-      isActive: true
-    });
-    setShowUserModal(false);
   };
 
-  const handleEditUser = (user: any) => {
-    setEditingUser(user);
-    setNewUser({
-      name: user.name,
-      email: user.email,
-      roleId: user.roleId,
+  const handleAddUser = () => {
+    setEditingUser({
+      name: '',
+      email: '',
+      roleId: roles[0]?.id || '',
       password: '',
-      confirmPassword: '',
-      isActive: user.isActive
+      isActive: true
     });
     setShowUserModal(true);
   };
 
-  const handleUpdateUser = () => {
-    if (!newUser.name || !newUser.email) {
+  const handleEditUser = (user: any) => {
+    setEditingUser({ ...user });
+    setShowUserModal(true);
+  };
+
+  const handleSaveUser = () => {
+    if (!editingUser.name || !editingUser.email || !editingUser.roleId) {
       alert('Please fill in all required fields.');
       return;
     }
 
-    if (newUser.password && newUser.password !== newUser.confirmPassword) {
-      alert('Passwords do not match.');
-      return;
+    if (editingUser.id) {
+      onUpdateUser(editingUser);
+    } else {
+      onAddUser(editingUser);
     }
-
-    const updatedUser = {
-      ...editingUser,
-      name: newUser.name,
-      email: newUser.email,
-      roleId: newUser.roleId,
-      isActive: newUser.isActive
-    };
-
-    if (newUser.password) {
-      updatedUser.password = newUser.password;
-    }
-
-    onUpdateUser(updatedUser);
-    setEditingUser(null);
+    
     setShowUserModal(false);
-  };
-
-  const handleDeleteUser = (userId: string) => {
-    if (confirm('Are you sure you want to delete this user?')) {
-      onDeleteUser(userId);
-    }
+    setEditingUser(null);
   };
 
   const handleAddRole = () => {
-    if (!newRole.name.trim()) {
-      alert('Please enter a role name.');
-      return;
-    }
-
-    if (roles.some(role => role.name.toLowerCase() === newRole.name.toLowerCase())) {
-      alert('Role name already exists.');
-      return;
-    }
-
-    if (newRole.permissions.length === 0) {
-      alert('Please select at least one permission.');
-      return;
-    }
-
-    onAddRole({
-      name: newRole.name,
-      permissions: newRole.permissions
-    });
-
-    setNewRole({ name: '', permissions: [] });
-    setShowRoleModal(false);
-  };
-
-  const handleEditRole = (role: any) => {
-    // Allow editing of all roles, but show warning for system roles
-    if (role.isSystem) {
-      if (!confirm(`"${role.name}" is a system role. Modifying it may affect system functionality. Are you sure you want to continue?`)) {
-        return;
-      }
-    }
-    
-    setEditingRole(role);
-    setNewRole({
-      name: role.name,
-      permissions: [...role.permissions]
+    setEditingRole({
+      name: '',
+      permissions: []
     });
     setShowRoleModal(true);
   };
 
-  const handleUpdateRole = () => {
-    if (!newRole.name.trim()) {
+  const handleEditRole = (role: any) => {
+    setEditingRole({ ...role });
+    setShowRoleModal(true);
+  };
+
+  const handleSaveRole = () => {
+    if (!editingRole.name) {
       alert('Please enter a role name.');
       return;
     }
 
-    if (newRole.permissions.length === 0) {
-      alert('Please select at least one permission.');
-      return;
+    if (editingRole.id) {
+      onUpdateRole(editingRole);
+    } else {
+      onAddRole(editingRole);
     }
-
-    const updatedRole = {
-      ...editingRole,
-      name: newRole.name,
-      permissions: newRole.permissions
-    };
-
-    onUpdateRole(updatedRole);
-    setEditingRole(null);
+    
     setShowRoleModal(false);
-  };
-
-  const handleDeleteRole = (roleId: string) => {
-    const role = roles.find(r => r.id === roleId);
-    if (!role) return;
-
-    if (role.isSystem) {
-      alert('Cannot delete system roles.');
-      return;
-    }
-
-    const usersWithRole = users.filter(user => user.roleId === roleId);
-    if (usersWithRole.length > 0) {
-      alert(`Cannot delete role "${role.name}" because it is assigned to ${usersWithRole.length} user(s).`);
-      return;
-    }
-
-    if (confirm(`Are you sure you want to delete the role "${role.name}"?`)) {
-      onDeleteRole(roleId);
-    }
+    setEditingRole(null);
   };
 
   const handlePermissionToggle = (permissionId: string) => {
-    const updatedPermissions = newRole.permissions.includes(permissionId)
-      ? newRole.permissions.filter(p => p !== permissionId)
-      : [...newRole.permissions, permissionId];
+    if (!editingRole) return;
     
-    setNewRole({ ...newRole, permissions: updatedPermissions });
+    const permissions = editingRole.permissions || [];
+    const hasPermission = permissions.includes(permissionId);
+    
+    if (hasPermission) {
+      setEditingRole({
+        ...editingRole,
+        permissions: permissions.filter((p: string) => p !== permissionId)
+      });
+    } else {
+      setEditingRole({
+        ...editingRole,
+        permissions: [...permissions, permissionId]
+      });
+    }
   };
 
   const handleSendTestEmail = async () => {
-    if (!emailSettings.smtpServer || !emailSettings.smtpUsername || !emailSettings.smtpPassword || !emailSettings.testEmail) {
-      alert('Please fill in all SMTP settings and test email address.');
+    if (!emailSettings.testEmailRecipient) {
+      alert('Please enter a test email recipient.');
       return;
     }
 
-    setIsTestingEmail(true);
-    setEmailTestResult(null);
-
+    setEmailTestStatus('sending');
+    
+    // Simulate email sending (replace with actual email service integration)
     try {
-      // In a real application, this would make an API call to your backend
-      const response = await fetch('/api/send-test-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...emailSettings,
-          subject: 'Test Email from Restaurant POS',
-          message: 'This is a test email to verify your SMTP configuration is working correctly.'
-        }),
-      });
-
-      const result = await response.json();
-      setEmailTestResult(result);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // This is where you would integrate with your actual email service
+      console.log('Email settings:', emailSettings);
+      console.log('Sending test email to:', emailSettings.testEmailRecipient);
+      
+      setEmailTestStatus('success');
+      setTimeout(() => setEmailTestStatus('idle'), 3000);
+      
+      alert(`Test email sent successfully to ${emailSettings.testEmailRecipient}!\n\nNote: This is a simulation. To enable actual email sending, integrate with your email service provider (Gmail, Outlook, etc.).`);
     } catch (error) {
-      // Since this is a frontend-only app, show instructions for backend setup
-      setEmailTestResult({
-        success: false,
-        message: 'Email functionality requires a backend server. This is a frontend-only demo. To enable real email sending, you need to:\n\n1. Set up a Node.js backend server\n2. Install nodemailer: npm install nodemailer\n3. Create an API endpoint at /api/send-test-email\n4. Configure your SMTP settings\n\nFor Gmail: Use App Passwords instead of your regular password.'
-      });
-    } finally {
-      setIsTestingEmail(false);
+      setEmailTestStatus('error');
+      setTimeout(() => setEmailTestStatus('idle'), 3000);
+      alert('Failed to send test email. Please check your email settings.');
     }
+  };
+
+  const handleSaveEmailSettings = () => {
+    // Save email settings to local storage or your preferred storage method
+    localStorage.setItem('email_settings', JSON.stringify(emailSettings));
+    alert('Email settings saved successfully!');
   };
 
   const getRoleName = (roleId: string) => {
@@ -459,826 +272,690 @@ const Settings: React.FC<SettingsProps> = ({
     return role ? role.name : 'Unknown Role';
   };
 
-  const renderGeneralSettings = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-md border border-gray-200">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-6">
-          <h3 className="text-xl font-bold text-white">{t('generalSettings')}</h3>
-          <p className="text-blue-100">Configure your restaurant information and preferences</p>
-        </div>
-        
-        <div className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Building className="h-4 w-4 inline mr-2" />
-                {t('restaurantName')}
-              </label>
-              <input
-                type="text"
-                value={formData.restaurantName}
-                onChange={(e) => setFormData({ ...formData, restaurantName: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <DollarSign className="h-4 w-4 inline mr-2" />
-                {t('currency')}
-              </label>
-              <select
-                value={formData.currency}
-                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="MMK">Myanmar Kyat (MMK)</option>
-                <option value="USD">US Dollar (USD)</option>
-                <option value="EUR">Euro (EUR)</option>
-                <option value="THB">Thai Baht (THB)</option>
-              </select>
-            </div>
-          </div>
+  const canManageUsers = currentUserPermissions.includes('user_manage') || currentUserPermissions.length === 0;
+  const canManageRoles = currentUserPermissions.includes('role_manage') || currentUserPermissions.length === 0;
+  const canManageSettings = currentUserPermissions.includes('settings_manage') || currentUserPermissions.length === 0;
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('description')}
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={3}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Percent className="h-4 w-4 inline mr-2" />
-                {t('taxRate')}
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                value={formData.taxRate}
-                onChange={(e) => setFormData({ ...formData, taxRate: parseFloat(e.target.value) || 0 })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Percent className="h-4 w-4 inline mr-2" />
-                {t('serviceChargeRate')}
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                value={formData.serviceCharge}
-                onChange={(e) => setFormData({ ...formData, serviceCharge: parseFloat(e.target.value) || 0 })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              id="serviceChargeEnabled"
-              checked={formData.serviceChargeEnabled}
-              onChange={(e) => setFormData({ ...formData, serviceChargeEnabled: e.target.checked })}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="serviceChargeEnabled" className="text-sm font-medium text-gray-700">
-              {t('enableServiceCharge')}
-            </label>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('uploadLogo')}
-            </label>
-            <div className="flex items-center space-x-4">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleLogoUpload}
-                className="hidden"
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Choose File
-              </button>
-              {formData.logo && (
-                <img
-                  src={formData.logo}
-                  alt="Logo preview"
-                  className="h-12 w-12 object-cover rounded-lg border border-gray-300"
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Globe className="h-4 w-4 inline mr-2" />
-                {t('language')}
-              </label>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value as 'en' | 'my')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="en">English</option>
-                <option value="my">Myanmar (မြန်မာ)</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {theme === 'light' ? <Sun className="h-4 w-4 inline mr-2" /> : <Moon className="h-4 w-4 inline mr-2" />}
-                {t('theme')}
-              </label>
-              <select
-                value={theme}
-                onChange={(e) => setTheme(e.target.value as 'light' | 'dark')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="light">{t('light')}</option>
-                <option value="dark">{t('dark')}</option>
-              </select>
-            </div>
-          </div>
-
-          <button
-            onClick={handleSaveSettings}
-            className="w-full flex items-center justify-center px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Save className="h-5 w-5 mr-2" />
-            {t('saveSettings')}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderUserManagement = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-md border border-gray-200">
-        <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-t-lg p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xl font-bold text-white">{t('userManagement')}</h3>
-              <p className="text-green-100">Manage user accounts and access</p>
-            </div>
-            <button
-              onClick={() => {
-                setEditingUser(null);
-                setNewUser({
-                  name: '',
-                  email: '',
-                  roleId: 'waiter',
-                  password: '',
-                  confirmPassword: '',
-                  isActive: true
-                });
-                setShowUserModal(true);
-              }}
-              className="flex items-center px-4 py-2 text-green-100 bg-green-500 rounded-lg hover:bg-green-400 transition-colors"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {t('addUser')}
-            </button>
-          </div>
-        </div>
-        
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {users.map((user) => (
-              <div key={user.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                      <Users className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{user.name}</h4>
-                      <p className="text-sm text-gray-600">{user.email}</p>
-                    </div>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    user.isActive 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {user.isActive ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
-                
-                <div className="mb-3">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    <Shield className="h-3 w-3 mr-1" />
-                    {getRoleName(user.roleId)}
-                  </span>
-                </div>
-                
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEditUser(user)}
-                    className="flex-1 flex items-center justify-center px-3 py-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteUser(user.id)}
-                    className="flex-1 flex items-center justify-center px-3 py-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderRolesPermissions = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-md border border-gray-200">
-        <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xl font-bold text-white">{t('rolesPermissions')}</h3>
-              <p className="text-purple-100">Manage user roles and their permissions</p>
-            </div>
-            <button
-              onClick={() => {
-                setEditingRole(null);
-                setNewRole({ name: '', permissions: [] });
-                setShowRoleModal(true);
-              }}
-              className="flex items-center px-4 py-2 text-purple-100 bg-purple-500 rounded-lg hover:bg-purple-400 transition-colors"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {t('addRole')}
-            </button>
-          </div>
-        </div>
-        
-        <div className="p-6">
-          <div className="space-y-4">
-            {roles.map((role) => (
-              <div key={role.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    <Shield className="h-5 w-5 text-blue-600" />
-                    <div>
-                      <h4 className="font-semibold text-gray-900 flex items-center">
-                        {role.name}
-                        {role.isSystem && (
-                          <span className="ml-2 px-2 py-0.5 bg-gray-200 text-gray-600 text-xs rounded-full">
-                            System
-                          </span>
-                        )}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {role.permissions.length} permissions assigned
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleEditRole(role)}
-                      className="flex items-center px-3 py-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Update Role
-                    </button>
-                    <button
-                      onClick={() => handleDeleteRole(role.id)}
-                      disabled={role.isSystem}
-                      className={`flex items-center px-3 py-2 rounded-md transition-colors ${
-                        role.isSystem
-                          ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
-                          : 'text-red-600 bg-red-50 hover:bg-red-100'
-                      }`}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Delete
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  {role.permissions.slice(0, 3).map((permission) => {
-                    const permissionInfo = availablePermissions.find(p => p.id === permission);
-                    return (
-                      <span
-                        key={permission}
-                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                      >
-                        {permissionInfo?.name || permission}
-                      </span>
-                    );
-                  })}
-                  {role.permissions.length > 3 && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                      +{role.permissions.length - 3} more
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderEmailIntegration = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-md border border-gray-200">
-        <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-t-lg p-6">
-          <h3 className="text-xl font-bold text-white">{t('emailIntegration')}</h3>
-          <p className="text-indigo-100">Configure SMTP settings for email notifications</p>
-        </div>
-        
-        <div className="p-6 space-y-6">
-          {/* Email Provider Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Provider
-            </label>
-            <select
-              value={emailSettings.provider}
-              onChange={(e) => handleProviderChange(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              {Object.entries(emailProviders).map(([key, provider]) => (
-                <option key={key} value={key}>{provider.name}</option>
-              ))}
-            </select>
-            <p className="text-sm text-gray-600 mt-2">
-              {emailProviders[emailSettings.provider as keyof typeof emailProviders]?.instructions}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('smtpServer')}
-              </label>
-              <input
-                type="text"
-                value={emailSettings.smtpServer}
-                onChange={(e) => setEmailSettings({ ...emailSettings, smtpServer: e.target.value })}
-                placeholder="smtp.gmail.com"
-                disabled={emailSettings.provider !== 'custom'}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('smtpPort')}
-              </label>
-              <input
-                type="number"
-                value={emailSettings.smtpPort}
-                onChange={(e) => setEmailSettings({ ...emailSettings, smtpPort: parseInt(e.target.value) || 587 })}
-                placeholder="587"
-                disabled={emailSettings.provider !== 'custom'}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('smtpUsername')}
-              </label>
-              <input
-                type="text"
-                value={emailSettings.smtpUsername}
-                onChange={(e) => setEmailSettings({ ...emailSettings, smtpUsername: e.target.value })}
-                placeholder="your-email@gmail.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('smtpPassword')}
-              </label>
-              <input
-                type="password"
-                value={emailSettings.smtpPassword}
-                onChange={(e) => setEmailSettings({ ...emailSettings, smtpPassword: e.target.value })}
-                placeholder="App Password (for Gmail)"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('fromEmail')}
-              </label>
-              <input
-                type="email"
-                value={emailSettings.fromEmail}
-                onChange={(e) => setEmailSettings({ ...emailSettings, fromEmail: e.target.value })}
-                placeholder="noreply@restaurant.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('fromName')}
-              </label>
-              <input
-                type="text"
-                value={emailSettings.fromName}
-                onChange={(e) => setEmailSettings({ ...emailSettings, fromName: e.target.value })}
-                placeholder="Restaurant POS"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              id="enableTLS"
-              checked={emailSettings.enableTLS}
-              onChange={(e) => setEmailSettings({ ...emailSettings, enableTLS: e.target.checked })}
-              disabled={emailSettings.provider !== 'custom'}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-            />
-            <label htmlFor="enableTLS" className="text-sm font-medium text-gray-700">
-              {t('enableTLS')}
-            </label>
-          </div>
-
-          {/* Save Email Settings Button */}
-          <div className="border-t border-gray-200 pt-6">
-            <button
-              onClick={handleSaveEmailSettings}
-              className="w-full flex items-center justify-center px-6 py-3 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              <Save className="h-5 w-5 mr-2" />
-              Save Email Configuration
-            </button>
-          </div>
-
-          {/* Test Email Section */}
-          <div className="border-t border-gray-200 pt-6">
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('testEmail')}</h4>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <p className="text-sm text-blue-800">
-                <strong>Instructions:</strong> Save your email configuration above, then enter a test email address below to verify your settings.
-              </p>
-              <p className="text-xs text-blue-600 mt-2">
-                {emailProviders[emailSettings.provider as keyof typeof emailProviders]?.instructions}
-              </p>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Test Email Address
-                </label>
-                <input
-                  type="email"
-                  value={emailSettings.testEmail}
-                  onChange={(e) => setEmailSettings({ ...emailSettings, testEmail: e.target.value })}
-                  placeholder="test@example.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              
-              <button
-                onClick={handleSendTestEmail}
-                disabled={isTestingEmail || !emailSettings.testEmail}
-                className="flex items-center justify-center px-6 py-3 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-              >
-                {isTestingEmail ? (
-                  <>
-                    <Loader className="h-5 w-5 mr-2 animate-spin" />
-                    Sending Test Email...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-5 w-5 mr-2" />
-                    {t('sendTestEmail')}
-                  </>
-                )}
-              </button>
-              
-              {emailTestResult && (
-                <div className={`p-4 rounded-lg border ${
-                  emailTestResult.success 
-                    ? 'bg-green-50 border-green-200' 
-                    : 'bg-red-50 border-red-200'
-                }`}>
-                  <div className="flex items-start space-x-3">
-                    {emailTestResult.success ? (
-                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
-                    ) : (
-                      <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
-                    )}
-                    <div className="flex-1">
-                      <p className={`text-sm font-medium ${
-                        emailTestResult.success ? 'text-green-800' : 'text-red-800'
-                      }`}>
-                        {emailTestResult.success ? 'Success!' : 'Error'}
-                      </p>
-                      <p className={`text-sm mt-1 whitespace-pre-line ${
-                        emailTestResult.success ? 'text-green-700' : 'text-red-700'
-                      }`}>
-                        {emailTestResult.message}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const tabs = [
+    { id: 'general', label: t('generalSettings'), icon: Save },
+    ...(canManageUsers ? [{ id: 'users', label: t('userManagement'), icon: User }] : []),
+    ...(canManageRoles ? [{ id: 'roles', label: t('rolesPermissions'), icon: Shield }] : []),
+    { id: 'email', label: t('emailIntegration'), icon: Mail }
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-white flex items-center">
-                <SettingsIcon className="h-6 w-6 mr-3" />
-                {t('settings')}
-              </h2>
-              <p className="text-gray-100">Configure your restaurant POS system</p>
-            </div>
-          </div>
+        <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg p-4 lg:p-6 mb-4 lg:mb-6">
+          <h2 className="text-lg lg:text-2xl font-bold text-white">{t('settings')}</h2>
+          <p className="text-purple-100 text-sm lg:text-base">Configure your restaurant POS system</p>
         </div>
 
         {/* Navigation Tabs */}
         <div className="bg-white rounded-lg shadow-md border border-gray-200 mb-6">
-          <div className="flex space-x-1 p-1">
-            <button
-              onClick={() => setActiveSection('general')}
-              className={`flex-1 px-4 py-3 text-sm font-medium rounded-md transition-colors ${
-                activeSection === 'general'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              General Settings
-            </button>
-            {hasPermission('user_manage') && (
-              <button
-                onClick={() => setActiveSection('users')}
-                className={`flex-1 px-4 py-3 text-sm font-medium rounded-md transition-colors ${
-                  activeSection === 'users'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                User Management
-              </button>
-            )}
-            {hasPermission('role_manage') && (
-              <button
-                onClick={() => setActiveSection('roles')}
-                className={`flex-1 px-4 py-3 text-sm font-medium rounded-md transition-colors ${
-                  activeSection === 'roles'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                Roles & Permissions
-              </button>
-            )}
-            <button
-              onClick={() => setActiveSection('email')}
-              className={`flex-1 px-4 py-3 text-sm font-medium rounded-md transition-colors ${
-                activeSection === 'email'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              Email Integration
-            </button>
-          </div>
-        </div>
-
-        {/* Content */}
-        {activeSection === 'general' && renderGeneralSettings()}
-        {activeSection === 'users' && hasPermission('user_manage') && renderUserManagement()}
-        {activeSection === 'roles' && hasPermission('role_manage') && renderRolesPermissions()}
-        {activeSection === 'email' && renderEmailIntegration()}
-
-        {/* User Modal */}
-        {showUserModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg w-full max-w-md">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {editingUser ? t('editUser') : t('addUser')}
-                </h3>
-              </div>
-              
-              <div className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('userName')}
-                  </label>
-                  <input
-                    type="text"
-                    value={newUser.name}
-                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('userEmail')}
-                  </label>
-                  <input
-                    type="email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('userRole')}
-                  </label>
-                  <select
-                    value={newUser.roleId}
-                    onChange={(e) => setNewUser({ ...newUser, roleId: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {roles.map(role => (
-                      <option key={role.id} value={role.id}>{role.name}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {editingUser ? 'New Password (leave blank to keep current)' : t('setPassword')}
-                  </label>
-                  <input
-                    type="password"
-                    value={newUser.password}
-                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('confirmPassword')}
-                  </label>
-                  <input
-                    type="password"
-                    value={newUser.confirmPassword}
-                    onChange={(e) => setNewUser({ ...newUser, confirmPassword: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    id="userActive"
-                    checked={newUser.isActive}
-                    onChange={(e) => setNewUser({ ...newUser, isActive: e.target.checked })}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="userActive" className="text-sm font-medium text-gray-700">
-                    Active User
-                  </label>
-                </div>
-              </div>
-              
-              <div className="p-6 border-t border-gray-200">
-                <div className="flex space-x-3">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-8 px-6">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
                   <button
-                    onClick={editingUser ? handleUpdateUser : handleAddUser}
-                    className="flex-1 flex items-center justify-center px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-purple-500 text-purple-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
                   >
-                    <Save className="h-4 w-4 mr-2" />
-                    {editingUser ? t('updateUser') : t('addUser')}
+                    <Icon className="h-4 w-4 mr-2" />
+                    {tab.label}
                   </button>
-                  <button
-                    onClick={() => {
-                      setShowUserModal(false);
-                      setEditingUser(null);
-                    }}
-                    className="flex-1 flex items-center justify-center px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
+                );
+              })}
+            </nav>
           </div>
-        )}
 
-        {/* Role Modal */}
-        {showRoleModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {editingRole ? t('editRole') : t('addRole')}
-                </h3>
-              </div>
-              
-              <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(90vh-200px)]">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('roleName')}
-                  </label>
-                  <input
-                    type="text"
-                    value={newRole.name}
-                    onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    {t('assignPermissions')}
-                  </label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-4">
-                    {availablePermissions.map((permission) => (
-                      <div key={permission.id} className="flex items-start space-x-3">
-                        <input
-                          type="checkbox"
-                          id={permission.id}
-                          checked={newRole.permissions.includes(permission.id)}
-                          onChange={() => handlePermissionToggle(permission.id)}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
-                        />
-                        <div className="flex-1">
-                          <label htmlFor={permission.id} className="text-sm font-medium text-gray-900 cursor-pointer">
-                            {permission.name}
-                          </label>
-                          <p className="text-xs text-gray-600">{permission.description}</p>
-                        </div>
-                      </div>
-                    ))}
+          <div className="p-6">
+            {activeTab === 'general' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('restaurantName')}
+                    </label>
+                    <input
+                      type="text"
+                      value={localSettings.restaurantName || ''}
+                      onChange={(e) => setLocalSettings({ ...localSettings, restaurantName: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      disabled={!canManageSettings}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('currency')}
+                    </label>
+                    <select
+                      value={localSettings.currency || 'MMK'}
+                      onChange={(e) => setLocalSettings({ ...localSettings, currency: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      disabled={!canManageSettings}
+                    >
+                      <option value="MMK">Myanmar Kyat (MMK)</option>
+                      <option value="USD">US Dollar (USD)</option>
+                      <option value="EUR">Euro (EUR)</option>
+                      <option value="THB">Thai Baht (THB)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('taxRate')}
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={localSettings.taxRate || 0}
+                      onChange={(e) => setLocalSettings({ ...localSettings, taxRate: parseFloat(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      disabled={!canManageSettings}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('serviceChargeRate')}
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={localSettings.serviceCharge || 0}
+                      onChange={(e) => setLocalSettings({ ...localSettings, serviceCharge: parseFloat(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      disabled={!canManageSettings}
+                    />
                   </div>
                 </div>
-              </div>
-              
-              <div className="p-6 border-t border-gray-200">
-                <div className="flex space-x-3">
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="serviceChargeEnabled"
+                    checked={localSettings.serviceChargeEnabled || false}
+                    onChange={(e) => setLocalSettings({ ...localSettings, serviceChargeEnabled: e.target.checked })}
+                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                    disabled={!canManageSettings}
+                  />
+                  <label htmlFor="serviceChargeEnabled" className="ml-2 block text-sm text-gray-900">
+                    {t('enableServiceCharge')}
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('language')}
+                  </label>
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value as 'en' | 'my')}
+                    className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="en">English</option>
+                    <option value="my">မြန်မာ</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('theme')}
+                  </label>
+                  <div className="flex space-x-4">
+                    <button
+                      onClick={() => setTheme('light')}
+                      className={`px-4 py-2 rounded-md border transition-colors ${
+                        theme === 'light'
+                          ? 'bg-purple-600 text-white border-purple-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {t('light')}
+                    </button>
+                    <button
+                      onClick={() => setTheme('dark')}
+                      className={`px-4 py-2 rounded-md border transition-colors ${
+                        theme === 'dark'
+                          ? 'bg-purple-600 text-white border-purple-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {t('dark')}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('uploadLogo')}
+                  </label>
+                  <div className="flex items-center space-x-4">
+                    {localSettings.logo && (
+                      <img
+                        src={localSettings.logo}
+                        alt="Restaurant Logo"
+                        className="h-16 w-16 rounded-full object-cover border border-gray-300"
+                      />
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                      disabled={!canManageSettings}
+                    />
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={!canManageSettings}
+                      className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Choose File
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex space-x-4">
                   <button
-                    onClick={editingRole ? handleUpdateRole : handleAddRole}
-                    className="flex-1 flex items-center justify-center px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                    onClick={handleSaveSettings}
+                    disabled={!canManageSettings}
+                    className="flex items-center px-6 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Save className="h-4 w-4 mr-2" />
-                    {editingRole ? t('updateRole') : t('addRole')}
+                    {t('saveSettings')}
                   </button>
                   <button
-                    onClick={() => {
-                      setShowRoleModal(false);
-                      setEditingRole(null);
-                    }}
-                    className="flex-1 flex items-center justify-center px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                    onClick={handleExportDatabase}
+                    className="flex items-center px-6 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
                   >
-                    Cancel
+                    <Download className="h-4 w-4 mr-2" />
+                    {t('exportDatabase')}
                   </button>
                 </div>
               </div>
+            )}
+
+            {activeTab === 'users' && canManageUsers && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-900">{t('userManagement')}</h3>
+                  <button
+                    onClick={handleAddUser}
+                    className="flex items-center px-4 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    {t('addUser')}
+                  </button>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {t('userName')}
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {t('userEmail')}
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {t('userRole')}
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {users.map((user) => (
+                        <tr key={user.id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {user.name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {user.email}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {getRoleName(user.roleId)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              user.isActive 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {user.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button
+                              onClick={() => handleEditUser(user)}
+                              className="text-purple-600 hover:text-purple-900 mr-3"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => onDeleteUser(user.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'roles' && canManageRoles && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-900">{t('rolesPermissions')}</h3>
+                  <button
+                    onClick={handleAddRole}
+                    className="flex items-center px-4 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    {t('addRole')}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {roles.map((role) => (
+                    <div key={role.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{role.name}</h4>
+                          <p className="text-sm text-gray-500">
+                            {role.permissions?.length || 0} permissions
+                          </p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEditRole(role)}
+                            className="text-purple-600 hover:text-purple-900"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          {!role.isSystem && (
+                            <button
+                              onClick={() => onDeleteRole(role.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {role.permissions?.slice(0, 3).map((permission: string) => (
+                          <div key={permission} className="mb-1">
+                            • {availablePermissions.find(p => p.id === permission)?.name || permission}
+                          </div>
+                        ))}
+                        {role.permissions?.length > 3 && (
+                          <div className="text-gray-500">
+                            +{role.permissions.length - 3} more...
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'email' && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('emailIntegration')}</h3>
+                  <p className="text-sm text-gray-600 mb-6">
+                    Configure SMTP settings to enable email functionality for reports and notifications.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('smtpServer')}
+                    </label>
+                    <input
+                      type="text"
+                      value={emailSettings.smtpServer}
+                      onChange={(e) => setEmailSettings({ ...emailSettings, smtpServer: e.target.value })}
+                      placeholder="smtp.gmail.com"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('smtpPort')}
+                    </label>
+                    <input
+                      type="number"
+                      value={emailSettings.smtpPort}
+                      onChange={(e) => setEmailSettings({ ...emailSettings, smtpPort: parseInt(e.target.value) || 587 })}
+                      placeholder="587"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('smtpUsername')}
+                    </label>
+                    <input
+                      type="text"
+                      value={emailSettings.smtpUsername}
+                      onChange={(e) => setEmailSettings({ ...emailSettings, smtpUsername: e.target.value })}
+                      placeholder="your-email@gmail.com"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('smtpPassword')}
+                    </label>
+                    <input
+                      type="password"
+                      value={emailSettings.smtpPassword}
+                      onChange={(e) => setEmailSettings({ ...emailSettings, smtpPassword: e.target.value })}
+                      placeholder="App password or email password"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('fromEmail')}
+                    </label>
+                    <input
+                      type="email"
+                      value={emailSettings.fromEmail}
+                      onChange={(e) => setEmailSettings({ ...emailSettings, fromEmail: e.target.value })}
+                      placeholder="noreply@restaurant.com"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('fromName')}
+                    </label>
+                    <input
+                      type="text"
+                      value={emailSettings.fromName}
+                      onChange={(e) => setEmailSettings({ ...emailSettings, fromName: e.target.value })}
+                      placeholder="Restaurant POS System"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="enableTLS"
+                    checked={emailSettings.enableTLS}
+                    onChange={(e) => setEmailSettings({ ...emailSettings, enableTLS: e.target.checked })}
+                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="enableTLS" className="ml-2 block text-sm text-gray-900">
+                    {t('enableTLS')}
+                  </label>
+                </div>
+
+                <div className="border-t border-gray-200 pt-6">
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">{t('testEmail')}</h4>
+                  <div className="flex space-x-4">
+                    <div className="flex-1">
+                      <input
+                        type="email"
+                        value={emailSettings.testEmailRecipient}
+                        onChange={(e) => setEmailSettings({ ...emailSettings, testEmailRecipient: e.target.value })}
+                        placeholder="test@example.com"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    <button
+                      onClick={handleSendTestEmail}
+                      disabled={emailTestStatus === 'sending'}
+                      className={`flex items-center px-4 py-2 rounded-md font-medium transition-colors ${
+                        emailTestStatus === 'sending'
+                          ? 'bg-gray-400 text-white cursor-not-allowed'
+                          : emailTestStatus === 'success'
+                          ? 'bg-green-600 text-white'
+                          : emailTestStatus === 'error'
+                          ? 'bg-red-600 text-white'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      {emailTestStatus === 'sending' ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Sending...
+                        </>
+                      ) : emailTestStatus === 'success' ? (
+                        <>
+                          <Check className="h-4 w-4 mr-2" />
+                          Sent!
+                        </>
+                      ) : emailTestStatus === 'error' ? (
+                        <>
+                          <X className="h-4 w-4 mr-2" />
+                          Failed
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4 mr-2" />
+                          {t('sendTestEmail')}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex space-x-4">
+                  <button
+                    onClick={handleSaveEmailSettings}
+                    className="flex items-center px-6 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    {t('saveEmailSettings')}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* User Modal */}
+      {showUserModal && editingUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-md">
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {editingUser.id ? t('editUser') : t('addUser')}
+              </h3>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('userName')}
+                </label>
+                <input
+                  type="text"
+                  value={editingUser.name}
+                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('userEmail')}
+                </label>
+                <input
+                  type="email"
+                  value={editingUser.email}
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('userRole')}
+                </label>
+                <select
+                  value={editingUser.roleId}
+                  onChange={(e) => setEditingUser({ ...editingUser, roleId: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  {roles.map(role => (
+                    <option key={role.id} value={role.id}>{role.name}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('setPassword')}
+                </label>
+                <input
+                  type="password"
+                  value={editingUser.password}
+                  onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="userActive"
+                  checked={editingUser.isActive}
+                  onChange={(e) => setEditingUser({ ...editingUser, isActive: e.target.checked })}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <label htmlFor="userActive" className="ml-2 block text-sm text-gray-900">
+                  Active User
+                </label>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-gray-200">
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleSaveUser}
+                  className="flex-1 flex items-center justify-center px-4 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {editingUser.id ? t('updateUser') : t('addUser')}
+                </button>
+                <button
+                  onClick={() => setShowUserModal(false)}
+                  className="flex-1 flex items-center justify-center px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  {t('cancel')}
+                </button>
+              </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Role Modal */}
+      {showRoleModal && editingRole && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {editingRole.id ? t('editRole') : t('addRole')}
+              </h3>
+            </div>
+            
+            <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(90vh-200px)]">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('roleName')}
+                </label>
+                <input
+                  type="text"
+                  value={editingRole.name}
+                  onChange={(e) => setEditingRole({ ...editingRole, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-4">
+                  {t('assignPermissions')}
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {availablePermissions.map(permission => (
+                    <div key={permission.id} className="flex items-start">
+                      <input
+                        type="checkbox"
+                        id={permission.id}
+                        checked={editingRole.permissions?.includes(permission.id) || false}
+                        onChange={() => handlePermissionToggle(permission.id)}
+                        className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded mt-1"
+                      />
+                      <div className="ml-3">
+                        <label htmlFor={permission.id} className="text-sm font-medium text-gray-900">
+                          {permission.name}
+                        </label>
+                        <p className="text-xs text-gray-500">{permission.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-gray-200">
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleSaveRole}
+                  className="flex-1 flex items-center justify-center px-4 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {editingRole.id ? t('updateRole') : t('addRole')}
+                </button>
+                <button
+                  onClick={() => setShowRoleModal(false)}
+                  className="flex-1 flex items-center justify-center px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  {t('cancel')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

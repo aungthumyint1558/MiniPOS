@@ -137,6 +137,20 @@ export const translations = {
     updateRole: 'Update Role',
     roleName: 'Role Name',
     assignPermissions: 'Assign Permissions',
+    
+    // Email Integration
+    emailIntegration: 'Email Integration',
+    smtpConfiguration: 'SMTP Configuration',
+    smtpServer: 'SMTP Server',
+    smtpPort: 'SMTP Port',
+    smtpUsername: 'Username/Email',
+    smtpPassword: 'Password/App Password',
+    fromEmail: 'From Email',
+    fromName: 'From Name',
+    enableTLS: 'Enable TLS/SSL',
+    testEmail: 'Test Email',
+    sendTestEmail: 'Send Test Email',
+    saveEmailSettings: 'Save Email Settings',
   },
   
   my: {
