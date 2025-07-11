@@ -108,6 +108,14 @@ export const translations = {
     cannotDeleteCategoryWithItems: 'Cannot delete category with items',
     deleteCategory: 'Delete Category',
     thisActionCannotBeUndone: 'This action cannot be undone.',
+    appetizers: 'Appetizers',
+    mainCourse: 'Main Course',
+    pasta: 'Pasta',
+    pizza: 'Pizza',
+    dessert: 'Dessert',
+    beverage: 'Beverage',
+    updateCategory: 'Update Category',
+    editCategory: 'Edit Category',
     
     // Messages
     orderCompleted: 'Order completed successfully!',
@@ -392,6 +400,14 @@ export const translations = {
     cannotDeleteCategoryWithItems: 'ပစ္စည်းများပါဝင်သောအမျိုးအစားကိုဖျက်၍မရပါ',
     deleteCategory: 'အမျိုးအစားဖျက်ရန်',
     thisActionCannotBeUndone: 'ဤလုပ်ဆောင်ချက်ကိုပြန်လည်ပြင်ဆင်၍မရပါ။',
+    appetizers: 'ခေါက်ဆွဲ/အစားအစာများ',
+    mainCourse: 'ပင်မအစားအစာ',
+    pasta: 'ပါစတာ',
+    pizza: 'ပီဇာ',
+    dessert: 'အချိုပွဲ',
+    beverage: 'သောက်စရာများ',
+    updateCategory: 'အမျိုးအစားပြင်ဆင်ရန်',
+    editCategory: 'အမျိုးအစားပြင်ရန်',
     
     // Messages
     orderCompleted: 'အော်ဒါအောင်မြင်စွာပြီးမြောက်ပါပြီ!',

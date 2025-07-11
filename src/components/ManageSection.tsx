@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Plus, Edit, Trash2, Save, X, ChevronDown, Upload, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, ChevronDown, Upload } from 'lucide-react';
 import { MenuItem } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -36,6 +36,8 @@ const ManageSection: React.FC<ManageSectionProps> = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [newCategory, setNewCategory] = useState('');
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editingCategoryName, setEditingCategoryName] = useState('');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
@@ -140,6 +142,33 @@ const ManageSection: React.FC<ManageSectionProps> = ({
     }
   };
 
+  const handleEditCategory = (categoryName: string) => {
+    setEditingCategory(categoryName);
+    setEditingCategoryName(categoryName);
+  };
+
+  const handleUpdateCategory = () => {
+    if (editingCategory && editingCategoryName.trim() && editingCategoryName.trim() !== editingCategory) {
+      // Update all menu items that use the old category name
+      const itemsToUpdate = menuItems.filter(item => item.category === editingCategory);
+      itemsToUpdate.forEach(item => {
+        onUpdateMenuItem({ ...item, category: editingCategoryName.trim() });
+      });
+      
+      // Delete old category and add new one
+      onDeleteCategory(editingCategory);
+      onAddCategory(editingCategoryName.trim());
+      
+      setEditingCategory(null);
+      setEditingCategoryName('');
+    }
+  };
+
+  const handleCancelEditCategory = () => {
+    setEditingCategory(null);
+    setEditingCategoryName('');
+  };
+
   const handleDeleteCategory = (categoryToDelete: string) => {
     // Check if any menu items use this category
     const itemsInCategory = menuItems.filter(item => item.category === categoryToDelete);
@@ -159,6 +188,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
   const getCategoryStats = () => {
     return categories.map(category => ({
       name: category,
+      translatedName: t(category.toLowerCase().replace(/\s+/g, '')),
       count: menuItems.filter(item => item.category === category).length,
       totalValue: menuItems
         .filter(item => item.category === category)
@@ -480,22 +510,61 @@ const ManageSection: React.FC<ManageSectionProps> = ({
               <div className="space-y-3 max-h-[400px] overflow-y-auto">
                 {getCategoryStats().map((category) => (
                   <div key={category.name} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-gray-900">{category.name}</h4>
-                        <p className="text-sm text-gray-600">
-                          {category.count} {t('items')} • {t('totalValue')}: MMK {category.totalValue.toLocaleString()}
-                        </p>
+                    {editingCategory === category.name ? (
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          value={editingCategoryName}
+                          onChange={(e) => setEditingCategoryName(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          placeholder={t('enterCategoryName')}
+                        />
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={handleUpdateCategory}
+                            disabled={!editingCategoryName.trim() || editingCategoryName.trim() === category.name}
+                            className="flex items-center px-3 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                          >
+                            <Save className="h-4 w-4 mr-1" />
+                            {t('updateCategory')}
+                          </button>
+                          <button
+                            onClick={handleCancelEditCategory}
+                            className="flex items-center px-3 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            {t('cancel')}
+                          </button>
+                        </div>
                       </div>
-                      <button
-                        onClick={() => handleDeleteCategory(category.name)}
-                        disabled={category.count > 0}
-                        className="p-2 text-red-600 hover:text-red-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-                        title={category.count > 0 ? t('cannotDeleteCategoryWithItems') : t('deleteCategory')}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{category.translatedName}</h4>
+                          <p className="text-xs text-gray-500">{category.name}</p>
+                          <p className="text-sm text-gray-600">
+                            {category.count} {t('items')} • {t('totalValue')}: MMK {category.totalValue.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEditCategory(category.name)}
+                            className="p-2 text-blue-600 hover:text-blue-700 transition-colors"
+                            title={t('editCategory')}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(category.name)}
+                            disabled={category.count > 0}
+                            className="p-2 text-red-600 hover:text-red-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                            title={category.count > 0 ? t('cannotDeleteCategoryWithItems') : t('deleteCategory')}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
