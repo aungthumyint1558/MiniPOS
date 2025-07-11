@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Minus, ShoppingCart, X, Check, ArrowLeft, Save } from 'lucide-react';
 import { Table, MenuItem, OrderItem } from '../types';
 import { generateTableOrderId } from '../utils/orderIdGenerator';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface OrderingSystemProps {
   table: Table;
@@ -24,6 +25,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
   serviceChargeEnabled,
   taxRate
 }) => {
+  const { t } = useLanguage();
   const [orderItems, setOrderItems] = useState<OrderItem[]>(table.orderItems || []);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
