@@ -5,10 +5,10 @@ import { Users, BarChart3, Settings, ShoppingCart } from 'lucide-react';
 interface NavigationTabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  userRole: string;
+  userPermissions: string[];
 }
 
-const NavigationTabs: React.FC<NavigationTabsProps> = ({ activeTab, onTabChange, userRole }) => {
+const NavigationTabs: React.FC<NavigationTabsProps> = ({ activeTab, onTabChange, userPermissions }) => {
   const { t } = useLanguage();
   
   const allTabs = [
@@ -18,18 +18,22 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({ activeTab, onTabChange,
     { id: 'settings', label: t('settings'), icon: Settings, shortLabel: t('settings') },
   ];
 
-  // Filter tabs based on user role
+  // Filter tabs based on user permissions
   const getVisibleTabs = () => {
-    switch (userRole) {
-      case 'Admin':
-        return allTabs;
-      case 'Cashier':
-        return allTabs.filter(tab => ['pos', 'reports'].includes(tab.id));
-      case 'Waiter':
-        return allTabs.filter(tab => tab.id === 'pos');
-      default:
-        return allTabs.filter(tab => tab.id === 'pos');
-    }
+    return allTabs.filter(tab => {
+      switch (tab.id) {
+        case 'pos':
+          return userPermissions.includes('pos_access');
+        case 'reports':
+          return userPermissions.includes('reports_view');
+        case 'manage':
+          return userPermissions.includes('menu_view');
+        case 'settings':
+          return userPermissions.includes('settings_view');
+        default:
+          return false;
+      }
+    });
   };
 
   const tabs = getVisibleTabs();

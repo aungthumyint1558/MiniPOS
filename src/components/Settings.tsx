@@ -31,9 +31,24 @@ interface User {
 interface SettingsProps {
   settings: DatabaseSettings | null;
   onUpdateSettings: (settings: Partial<DatabaseSettings>) => void;
+  users: User[];
+  roles: UserRole[];
+  onAddUser: (user: Omit<User, 'id'>) => void;
+  onUpdateUser: (user: User) => void;
+  onDeleteUser: (userId: string) => void;
+  currentUserPermissions: string[];
 }
 
-const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
+const Settings: React.FC<SettingsProps> = ({ 
+  settings, 
+  onUpdateSettings, 
+  users, 
+  roles, 
+  onAddUser, 
+  onUpdateUser, 
+  onDeleteUser,
+  currentUserPermissions
+}) => {
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
   const [activeSettingsTab, setActiveSettingsTab] = useState<'general' | 'users' | 'roles'>('general');
@@ -58,50 +73,8 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     { id: 'database_manage', name: 'Database Management', description: 'Export and import database' }
   ]);
 
-  // Default roles
-  const [roles, setRoles] = useState<UserRole[]>([
-    {
-      id: 'admin',
-      name: 'Administrator',
-      permissions: permissions.map(p => p.id) // All permissions
-    },
-    {
-      id: 'manager',
-      name: 'Manager',
-      permissions: [
-        'pos_access', 'pos_create_order', 'pos_complete_order', 'pos_cancel_order', 'pos_print_order',
-        'table_manage', 'reports_view', 'reports_export', 'menu_view', 'menu_manage', 'category_manage',
-        'settings_view', 'user_manage'
-      ]
-    },
-    {
-      id: 'cashier',
-      name: 'Cashier',
-      permissions: [
-        'pos_access', 'pos_create_order', 'pos_complete_order', 'pos_print_order',
-        'reports_view', 'menu_view'
-      ]
-    },
-    {
-      id: 'waiter',
-      name: 'Waiter',
-      permissions: [
-        'pos_access', 'pos_create_order', 'menu_view'
-      ]
-    }
-  ]);
-
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: '1',
-      name: 'Admin User',
-      email: 'admin@restaurant.com',
-      password: 'admin123',
-      roleId: 'admin',
-      createdAt: new Date().toISOString(),
-      isActive: true
-    }
-  ]);
+  // Local state for role management (only for custom roles)
+  const [customRoles, setCustomRoles] = useState<UserRole[]>([]);
 
   const [showUserModal, setShowUserModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
@@ -138,6 +111,14 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     theme: 'light' as 'light' | 'dark',
     language: 'en',
   });
+
+  // Check if user has permission
+  const hasPermission = (permission: string) => {
+    return currentUserPermissions.includes(permission);
+  };
+
+  // Get all roles (default + custom)
+  const allRoles = [...roles, ...customRoles];
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -250,13 +231,12 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
       return;
     }
 
-    const user: User = {
+    const user = {
       ...newUser,
-      id: Date.now().toString(),
       createdAt: new Date().toISOString()
     };
 
-    setUsers([...users, user]);
+    onAddUser(user);
     setNewUser({ name: '', email: '', password: '', roleId: 'waiter', avatar: '', isActive: true });
     setConfirmPassword('');
     setShowUserModal(false);
@@ -292,9 +272,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
       return;
     }
 
-    setUsers(users.map(user => 
-      user.id === editingUser.id ? editingUser : user
-    ));
+    onUpdateUser(editingUser);
     setEditingUser(null);
     setConfirmPassword('');
     setShowUserModal(false);
@@ -307,7 +285,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     }
 
     if (confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter(user => user.id !== userId));
+      onDeleteUser(userId);
     }
   };
 
@@ -317,7 +295,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
       return;
     }
 
-    if (roles.some(role => role.name.toLowerCase() === newRole.name.toLowerCase())) {
+    if (allRoles.some(role => role.name.toLowerCase() === newRole.name.toLowerCase())) {
       alert('Role name already exists. Please use a different name.');
       return;
     }
@@ -327,7 +305,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
       id: newRole.name.toLowerCase().replace(/\s+/g, '_')
     };
 
-    setRoles([...roles, role]);
+    setCustomRoles([...customRoles, role]);
     setNewRole({ name: '', permissions: [] });
     setShowRoleModal(false);
   };
@@ -346,12 +324,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     }
 
     // Check if role name already exists (excluding current role)
-    if (roles.some(role => role.name.toLowerCase() === editingRole.name.toLowerCase() && role.id !== editingRole.id)) {
+    if (allRoles.some(role => role.name.toLowerCase() === editingRole.name.toLowerCase() && role.id !== editingRole.id)) {
       alert('Role name already exists. Please use a different name.');
       return;
     }
 
-    setRoles(roles.map(role => 
+    if (roles.some(r => r.id === editingRole.id)) {
+      // Cannot edit default roles
+      alert('Cannot edit default system roles.');
+      return;
+    }
+
+    setCustomRoles(customRoles.map(role => 
       role.id === editingRole.id ? editingRole : role
     ));
     setEditingRole(null);
@@ -373,7 +357,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     }
 
     if (confirm('Are you sure you want to delete this role?')) {
-      setRoles(roles.filter(role => role.id !== roleId));
+      setCustomRoles(customRoles.filter(role => role.id !== roleId));
     }
   };
 
@@ -410,7 +394,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
   };
 
   const getRoleName = (roleId: string) => {
-    const role = roles.find(r => r.id === roleId);
+    const role = allRoles.find(r => r.id === roleId);
     return role ? role.name : 'Unknown Role';
   };
 
@@ -539,26 +523,30 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
         >
           {t('generalSettings')}
         </button>
-        <button
-          onClick={() => setActiveSettingsTab('users')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-            activeSettingsTab === 'users'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-          }`}
-        >
-          {t('userManagement')}
-        </button>
-        <button
-          onClick={() => setActiveSettingsTab('roles')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-            activeSettingsTab === 'roles'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-          }`}
-        >
-          Roles & Permissions
-        </button>
+        {hasPermission('user_manage') && (
+          <button
+            onClick={() => setActiveSettingsTab('users')}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              activeSettingsTab === 'users'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+            }`}
+          >
+            {t('userManagement')}
+          </button>
+        )}
+        {hasPermission('role_manage') && (
+          <button
+            onClick={() => setActiveSettingsTab('roles')}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              activeSettingsTab === 'roles'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+            }`}
+          >
+            Roles & Permissions
+          </button>
+        )}
       </div>
 
       {activeSettingsTab === 'general' ? (
@@ -837,28 +825,51 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                             {getRoleName(user.roleId)}
                           </span>
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            user.isActive 
+              <h2 className="text-xl font-bold text-white">Roles ({allRoles.length})</h2>
                               ? 'bg-green-100 text-green-800'
                               : 'bg-gray-100 text-gray-800'
                           }`}>
                             {user.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                        </div>
+                {allRoles.map((role) => (
+                  <div key={role.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                       </div>
                     </div>
-                    <div className="flex space-x-2">
+                        <h4 className="font-semibold text-gray-900">{role.name}</h4>
                       <button
-                        onClick={() => handleEditUser(user)}
+                          {role.permissions.length} permissions assigned
                         className="p-2 text-blue-600 hover:text-blue-700 transition-colors"
                       >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="p-2 text-red-600 hover:text-red-700 transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditRole(role)}
+                          disabled={['admin', 'manager', 'cashier', 'waiter'].includes(role.id)}
+                          className="p-2 text-blue-600 hover:text-blue-700 transition-colors disabled:text-gray-400 disabled:cursor-not-allowed"
+                          title={['admin', 'manager', 'cashier', 'waiter'].includes(role.id) ? 'Cannot edit default roles' : 'Edit role'}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRole(role.id)}
+                          disabled={['admin', 'manager', 'cashier', 'waiter'].includes(role.id)}
+                          className="p-2 text-red-600 hover:text-red-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                          title={['admin', 'manager', 'cashier', 'waiter'].includes(role.id) ? 'Cannot delete default roles' : 'Delete role'}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {role.permissions.map(permissionId => {
+                        const permission = permissions.find(p => p.id === permissionId);
+                        return permission ? (
+                          <span
+                            key={permissionId}
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                          >
+                            {permission.name}
+                          </span>
+                        ) : null;
+                      })}
                     </div>
                   </div>
                 ))}
@@ -1090,7 +1101,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    {roles.map(role => (
+                    {allRoles.map(role => (
                       <option key={role.id} value={role.id}>{role.name}</option>
                     ))}
                   </select>

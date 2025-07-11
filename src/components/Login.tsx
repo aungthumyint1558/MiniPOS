@@ -4,16 +4,22 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 interface LoginProps {
   onLogin: (username: string, role: string) => void;
-  users: Array<{ name: string; email: string; role: string; password?: string }>;
+  users: Array<{ id: string; name: string; email: string; roleId: string; password: string; isActive: boolean }>;
+  roles: Array<{ id: string; name: string; permissions: string[] }>;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin, users }) => {
+const Login: React.FC<LoginProps> = ({ onLogin, users, roles }) => {
   const { t } = useLanguage();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const getRoleName = (roleId: string) => {
+    const role = roles.find(r => r.id === roleId);
+    return role ? role.name : 'Unknown Role';
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,16 +36,31 @@ const Login: React.FC<LoginProps> = ({ onLogin, users }) => {
       return;
     }
 
-    // Check against user management users
+    // Check against user management users (by email or name)
     const user = users.find(u => 
-      u.name.toLowerCase() === username.toLowerCase() && 
-      (u.password === password || (!u.password && password === 'admin'))
+      (u.email.toLowerCase() === username.toLowerCase() || 
+       u.name.toLowerCase() === username.toLowerCase()) && 
+      u.password === password &&
+      u.isActive
     );
 
     if (user) {
-      onLogin(user.name, user.role);
+      const roleName = getRoleName(user.roleId);
+      onLogin(user.name, roleName);
     } else {
-      setError(t('invalidCredentials'));
+      // Check if user exists but is inactive
+      const inactiveUser = users.find(u => 
+        (u.email.toLowerCase() === username.toLowerCase() || 
+         u.name.toLowerCase() === username.toLowerCase()) && 
+        u.password === password &&
+        !u.isActive
+      );
+      
+      if (inactiveUser) {
+        setError('Account is inactive. Please contact administrator.');
+      } else {
+        setError(t('invalidCredentials'));
+      }
     }
     
     setIsLoading(false);

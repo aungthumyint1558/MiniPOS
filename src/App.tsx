@@ -19,10 +19,71 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState('');
   const [currentUserRole, setCurrentUserRole] = useState('');
-  const [users] = useState([
-    { name: 'Admin User', email: 'admin@restaurant.com', role: 'Admin', password: 'admin' },
-    { name: 'Cashier User', email: 'cashier@restaurant.com', role: 'Cashier', password: 'cashier123' },
-    { name: 'Waiter User', email: 'waiter@restaurant.com', role: 'Waiter', password: 'waiter123' }
+  const [currentUserPermissions, setCurrentUserPermissions] = useState<string[]>([]);
+
+  // Default roles with permissions
+  const [roles] = useState([
+    {
+      id: 'admin',
+      name: 'Administrator',
+      permissions: [
+        'pos_access', 'pos_create_order', 'pos_complete_order', 'pos_cancel_order', 'pos_print_order',
+        'table_manage', 'reports_view', 'reports_export', 'menu_view', 'menu_manage', 'category_manage',
+        'settings_view', 'settings_manage', 'user_manage', 'role_manage', 'database_manage'
+      ]
+    },
+    {
+      id: 'manager',
+      name: 'Manager',
+      permissions: [
+        'pos_access', 'pos_create_order', 'pos_complete_order', 'pos_cancel_order', 'pos_print_order',
+        'table_manage', 'reports_view', 'reports_export', 'menu_view', 'menu_manage', 'category_manage',
+        'settings_view', 'user_manage'
+      ]
+    },
+    {
+      id: 'cashier',
+      name: 'Cashier',
+      permissions: [
+        'pos_access', 'pos_create_order', 'pos_complete_order', 'pos_print_order',
+        'reports_view', 'menu_view'
+      ]
+    },
+    {
+      id: 'waiter',
+      name: 'Waiter',
+      permissions: [
+        'pos_access', 'pos_create_order', 'menu_view'
+      ]
+    }
+  ]);
+
+  // Default users
+  const [users, setUsers] = useState([
+    {
+      id: '1',
+      name: 'Admin User',
+      email: 'admin@restaurant.com',
+      roleId: 'admin',
+      password: 'admin123',
+      isActive: true
+    },
+    {
+      id: '2',
+      name: 'Cashier User',
+      email: 'cashier@restaurant.com',
+      roleId: 'cashier',
+      password: 'cashier123',
+      isActive: true
+    },
+    {
+      id: '3',
+      name: 'Waiter User',
+      email: 'waiter@restaurant.com',
+      roleId: 'waiter',
+      password: 'waiter123',
+      isActive: true
+    }
   ]);
 
   const {
@@ -43,6 +104,17 @@ function App() {
     addOrderHistory,
     clearOrderHistory
   } = useDatabase();
+
+  // Get user permissions based on role
+  const getUserPermissions = (roleName: string) => {
+    const role = roles.find(r => r.name === roleName);
+    return role ? role.permissions : [];
+  };
+
+  // Check if user has specific permission
+  const hasPermission = (permission: string) => {
+    return currentUserPermissions.includes(permission);
+  };
 
   const handleUpdateTable = (updatedTable: Table) => {
     updateTable(updatedTable);
@@ -114,6 +186,7 @@ function App() {
       setIsLoggedIn(false);
       setCurrentUser('');
       setCurrentUserRole('');
+      setCurrentUserPermissions([]);
       setActiveTab('pos');
     }
   };
@@ -121,20 +194,42 @@ function App() {
   const handleLogin = (username: string, role: string) => {
     setCurrentUser(username);
     setCurrentUserRole(role);
+    setCurrentUserPermissions(getUserPermissions(role));
     setIsLoggedIn(true);
+  };
+
+  // User management functions
+  const handleAddUser = (newUser: any) => {
+    const user = {
+      ...newUser,
+      id: Date.now().toString()
+    };
+    setUsers([...users, user]);
+  };
+
+  const handleUpdateUser = (updatedUser: any) => {
+    setUsers(users.map(user => 
+      user.id === updatedUser.id ? updatedUser : user
+    ));
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    setUsers(users.filter(user => user.id !== userId));
   };
 
   // Check if user has access to the current tab
   const hasAccessToTab = (tabId: string) => {
-    switch (currentUserRole) {
-      case 'Admin':
-        return true;
-      case 'Cashier':
-        return ['pos', 'reports'].includes(tabId);
-      case 'Waiter':
-        return tabId === 'pos';
+    switch (tabId) {
+      case 'pos':
+        return hasPermission('pos_access');
+      case 'reports':
+        return hasPermission('reports_view');
+      case 'manage':
+        return hasPermission('menu_view');
+      case 'settings':
+        return hasPermission('settings_view');
       default:
-        return tabId === 'pos';
+        return false;
     }
   };
 
@@ -147,7 +242,7 @@ function App() {
 
   // Show login page if not logged in
   if (!isLoggedIn) {
-    return <Login onLogin={handleLogin} users={users} />;
+    return <Login onLogin={handleLogin} users={users} roles={roles} />;
   }
 
   const renderContent = () => {
@@ -182,7 +277,18 @@ function App() {
           />
         );
       case 'settings':
-        return <Settings settings={settings} onUpdateSettings={updateSettings} />;
+        return (
+          <Settings 
+            settings={settings} 
+            onUpdateSettings={updateSettings}
+            users={users}
+            roles={roles}
+            onAddUser={handleAddUser}
+            onUpdateUser={handleUpdateUser}
+            onDeleteUser={handleDeleteUser}
+            currentUserPermissions={currentUserPermissions}
+          />
+        );
       default:
         return (
           <TableManagement
@@ -209,6 +315,7 @@ function App() {
         settings={settings}
       />
       <NavigationTabs activeTab={activeTab} onTabChange={setActiveTab} userRole={currentUserRole} />
+      <NavigationTabs activeTab={activeTab} onTabChange={setActiveTab} userPermissions={currentUserPermissions} />
       <main className="pb-6">
         {renderContent()}
       </main>
