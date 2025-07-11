@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Plus, Edit, Trash2, X, Save, Users, ShoppingCart } from 'lucide-react';
 import { Table, OrderItem } from '../types';
-import { DatabaseSettings } from '../database/sqlite';
+import { DatabaseSettings } from '../database/localStorage';
 import { generateTableOrderId } from '../utils/orderIdGenerator';
 import TableCard from './TableCard';
 import OrderingSystem from './OrderingSystem';

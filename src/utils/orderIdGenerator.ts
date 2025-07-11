@@ -1,4 +1,4 @@
-// Generate consistent order ID that can be used across table and order history
+// Generate consistent order ID that can be used across table and order history  
 export const generateOrderId = (): string => {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, '0');
@@ -10,7 +10,7 @@ export const generateOrderId = (): string => {
   const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
   
   // Format: ORD-ddmmyy-hhmmss-mmm (e.g., ORD-151224-143025-123)
-  return `ORD-${day}${month}${year}-${hours}${minutes}${seconds}-${milliseconds}`;
+  return `ORD-${day}${month}${year}-${hours}${minutes}${seconds}`;
 };
 
 // Generate table-specific order ID for consistency
@@ -20,6 +20,6 @@ export const generateTableOrderId = (tableNumber: number): string => {
 };
 
 // Extract order number from order ID for display
-export const getOrderNumber = (orderId: string): string => {
-  return orderId.replace('ORD-', '').replace(/-/g, '');
+export const getOrderDisplayNumber = (orderId: string): string => {
+  return orderId.replace('ORD-', '').replace(/-T\d+$/, '');
 };

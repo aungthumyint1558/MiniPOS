@@ -142,7 +142,7 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
                 <span className="text-sm font-medium text-gray-700">Order ID</span>
               </div>
               <p className="text-gray-900 font-semibold">
-                {table.orderId ? table.orderId.replace('ORD-', '').replace(/-/g, '') : 'N/A'}
+                {table.orderId ? table.orderId.replace('ORD-', '').replace(/-T\d+$/, '') : 'N/A'}
               </p>
             </div>
             

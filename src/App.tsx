@@ -21,11 +21,12 @@ function App() {
   const [currentUserRole, setCurrentUserRole] = useState('');
   const [currentUserPermissions, setCurrentUserPermissions] = useState<string[]>([]);
 
-  // Default roles with permissions
-  const [roles] = useState([
+  // Default roles with permissions - moved to state so they can be managed
+  const [roles, setRoles] = useState([
     {
       id: 'admin',
       name: 'Administrator',
+      isSystem: true,
       permissions: [
         'pos_access', 'pos_create_order', 'pos_complete_order', 'pos_cancel_order', 'pos_print_order',
         'table_manage', 'reports_view', 'reports_export', 'menu_view', 'menu_manage', 'category_manage',
@@ -35,6 +36,7 @@ function App() {
     {
       id: 'manager',
       name: 'Manager',
+      isSystem: true,
       permissions: [
         'pos_access', 'pos_create_order', 'pos_complete_order', 'pos_cancel_order', 'pos_print_order',
         'table_manage', 'reports_view', 'reports_export', 'menu_view', 'menu_manage', 'category_manage',
@@ -44,6 +46,7 @@ function App() {
     {
       id: 'cashier',
       name: 'Cashier',
+      isSystem: true,
       permissions: [
         'pos_access', 'pos_create_order', 'pos_complete_order', 'pos_print_order',
         'reports_view', 'menu_view'
@@ -52,6 +55,7 @@ function App() {
     {
       id: 'waiter',
       name: 'Waiter',
+      isSystem: true,
       permissions: [
         'pos_access', 'pos_create_order', 'menu_view'
       ]
@@ -59,7 +63,7 @@ function App() {
   ]);
 
   // Default users
-  const [users, setUsers] = useState([
+  const [users, setUsers] = useState<any[]>([
     {
       id: '1',
       name: 'Admin User',
@@ -217,6 +221,16 @@ function App() {
     setUsers(users.filter(user => user.id !== userId));
   };
 
+  // Role management functions
+  const handleAddRole = (newRole: any) => {
+    const role = {
+      ...newRole,
+      id: Date.now().toString(),
+      isSystem: false
+    };
+    setRoles([...roles, role]);
+  };
+
   // Check if user has access to the current tab
   const hasAccessToTab = (tabId: string) => {
     switch (tabId) {
@@ -235,7 +249,7 @@ function App() {
 
   // Redirect if user doesn't have access to current tab
   React.useEffect(() => {
-    if (!hasAccessToTab(activeTab)) {
+    if (isLoggedIn && !hasAccessToTab(activeTab)) {
       setActiveTab('pos');
     }
   }, [activeTab, currentUserRole]);
@@ -286,6 +300,7 @@ function App() {
             onAddUser={handleAddUser}
             onUpdateUser={handleUpdateUser}
             onDeleteUser={handleDeleteUser}
+            onAddRole={handleAddRole}
             currentUserPermissions={currentUserPermissions}
           />
         );
@@ -314,7 +329,6 @@ function App() {
         onLogout={handleLogout}
         settings={settings}
       />
-      <NavigationTabs activeTab={activeTab} onTabChange={setActiveTab} userRole={currentUserRole} />
       <NavigationTabs activeTab={activeTab} onTabChange={setActiveTab} userPermissions={currentUserPermissions} />
       <main className="pb-6">
         {renderContent()}
