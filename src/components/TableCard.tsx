@@ -1,6 +1,7 @@
 import React from 'react';
 import { Users, Clock, CheckCircle2, Coffee, Eye } from 'lucide-react';
 import { Table } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface TableCardProps {
   table: Table;
@@ -21,6 +22,8 @@ const TableCard: React.FC<TableCardProps> = ({
   onViewOrder,
   isSelected = false 
 }) => {
+  const { t } = useLanguage();
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'available':
