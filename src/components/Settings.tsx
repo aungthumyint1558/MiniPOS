@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Save, Bell, Shield, Globe, Printer, Download, Upload, Database } from 'lucide-react';
+import { Save, Bell, Shield, Globe, Printer, Download, Upload, Database, ImageIcon } from 'lucide-react';
 import { DatabaseSettings } from '../database/localStorage';
 import { database } from '../database/localStorage';
 
