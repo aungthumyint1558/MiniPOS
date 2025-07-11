@@ -15,7 +15,8 @@ function App() {
   const { theme } = useTheme();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('pos');
-  const [currentUser] = useState('Administrator');
+  const [currentUser] = useState('Admin User');
+  const [currentUserRole] = useState('Admin');
   const [currentDate] = useState(new Date().toLocaleDateString('en-US', { 
     weekday: 'short', 
     year: 'numeric', 
@@ -115,9 +116,26 @@ function App() {
     }
   };
 
-  const handleSettings = () => {
-    setActiveTab('settings');
+  // Check if user has access to the current tab
+  const hasAccessToTab = (tabId: string) => {
+    switch (currentUserRole) {
+      case 'Admin':
+        return true;
+      case 'Cashier':
+        return ['pos', 'reports'].includes(tabId);
+      case 'Waiter':
+        return tabId === 'pos';
+      default:
+        return tabId === 'pos';
+    }
   };
+
+  // Redirect if user doesn't have access to current tab
+  React.useEffect(() => {
+    if (!hasAccessToTab(activeTab)) {
+      setActiveTab('pos');
+    }
+  }, [activeTab, currentUserRole]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -171,12 +189,12 @@ function App() {
     <div className={`min-h-screen bg-gray-50 ${theme}`}>
       <Header
         currentUser={currentUser}
+        currentUserRole={currentUserRole}
         currentDate={currentDate}
         onLogout={handleLogout}
-        onSettings={handleSettings}
         settings={settings}
       />
-      <NavigationTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <NavigationTabs activeTab={activeTab} onTabChange={setActiveTab} userRole={currentUserRole} />
       <main className="pb-6">
         {renderContent()}
       </main>

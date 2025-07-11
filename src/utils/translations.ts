@@ -97,6 +97,20 @@ export const translations = {
     confirmDelete: 'Are you sure you want to delete this item?',
     noOrderItems: 'No Order Items',
     noCompletedOrders: 'No completed orders yet',
+    
+    // User Management
+    userManagement: 'User Management',
+    addUser: 'Add User',
+    editUser: 'Edit User',
+    updateUser: 'Update User',
+    userName: 'User Name',
+    userEmail: 'Email Address',
+    userRole: 'User Role',
+    userAvatar: 'User Avatar',
+    uploadAvatar: 'Upload Avatar',
+    admin: 'Admin',
+    cashier: 'Cashier',
+    waiter: 'Waiter',
   },
   
   my: {
@@ -197,6 +211,20 @@ export const translations = {
     confirmDelete: 'ဤပစ္စည်းကိုဖျက်ရန်သေချာပါသလား?',
     noOrderItems: 'အော်ဒါပစ္စည်းများမရှိပါ',
     noCompletedOrders: 'ပြီးမြောက်သောအော်ဒါများမရှိသေးပါ',
+    
+    // User Management
+    userManagement: 'အသုံးပြုသူစီမံခန့်ခွဲမှု',
+    addUser: 'အသုံးပြုသူထည့်ရန်',
+    editUser: 'အသုံးပြုသူပြင်ရန်',
+    updateUser: 'အသုံးပြုသူပြင်ဆင်ရန်',
+    userName: 'အသုံးပြုသူအမည်',
+    userEmail: 'အီးမေးလ်လိပ်စာ',
+    userRole: 'အသုံးပြုသူအခန်းကဏ္ဍ',
+    userAvatar: 'အသုံးပြုသူပုံ',
+    uploadAvatar: 'ပုံတင်ရန်',
+    admin: 'စီမံခန့်ခွဲသူ',
+    cashier: 'ငွေကောင်တာ',
+    waiter: 'စားပွဲထိုး',
   }
 };
 
