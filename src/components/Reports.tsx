@@ -350,11 +350,10 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
               <div className="relative">
                 <button
                   onClick={handleFilterDate}
-                  className="flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm text-blue-100 bg-blue-500 rounded-md hover:bg-blue-400 transition-colors"
+                  className="flex items-center px-4 py-2 text-sm font-medium text-blue-100 bg-blue-500 rounded-md hover:bg-blue-400 transition-colors min-w-[120px] h-10"
                 >
-                  <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">{t('filterDate')}</span>
-                  <span className="sm:hidden">Filter</span>
+                  <Calendar className="h-4 w-4 mr-2" />
+                  {t('filterDate')}
                 </button>
                 {showDatePicker && (
                   <div className="absolute top-full mt-2 right-0 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-10">
@@ -370,29 +369,26 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
               
               <button
                 onClick={handleClear}
-                className="flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm text-red-100 bg-red-500 rounded-md hover:bg-red-400 transition-colors"
+                className="flex items-center px-4 py-2 text-sm font-medium text-red-100 bg-red-500 rounded-md hover:bg-red-400 transition-colors min-w-[80px] h-10"
               >
-                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">{t('clear')}</span>
-                <span className="sm:hidden">Clear</span>
+                <Trash2 className="h-4 w-4 mr-2" />
+                {t('clear')}
               </button>
               
               <button
                 onClick={handleExportPDF}
-                className="flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm text-purple-100 bg-purple-500 rounded-md hover:bg-purple-400 transition-colors"
+                className="flex items-center px-4 py-2 text-sm font-medium text-purple-100 bg-purple-500 rounded-md hover:bg-purple-400 transition-colors min-w-[120px] h-10"
               >
-                <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Export PDF</span>
-                <span className="sm:hidden">PDF</span>
+                <FileText className="h-4 w-4 mr-2" />
+                Export PDF
               </button>
               
               <button
                 onClick={handleExportExcel}
-                className="flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm text-green-100 bg-green-500 rounded-md hover:bg-green-400 transition-colors"
+                className="flex items-center px-4 py-2 text-sm font-medium text-green-100 bg-green-500 rounded-md hover:bg-green-400 transition-colors min-w-[130px] h-10"
               >
-                <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Export Excel</span>
-                <span className="sm:hidden">Excel</span>
+                <Download className="h-4 w-4 mr-2" />
+                Export Excel
               </button>
             </div>
           </div>

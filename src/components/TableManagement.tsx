@@ -221,44 +221,44 @@ const TableManagement: React.FC<TableManagementProps> = ({
               <button
                 onClick={() => selectedTable && handleStartOrder(selectedTable)}
                 disabled={!selectedTable}
-                className={`flex items-center px-3 lg:px-4 py-2 text-sm lg:text-base rounded-md transition-colors ${
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors min-w-[120px] h-10 ${
                   selectedTable 
                     ? 'text-green-100 bg-green-500 hover:bg-green-400' 
                     : 'text-green-300 bg-green-600 cursor-not-allowed'
                 }`}
               >
-                <ShoppingCart className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
+                <ShoppingCart className="h-4 w-4 mr-2" />
                 {t('startOrder')}
               </button>
               <button
                 onClick={() => selectedTable && handleEditTable(selectedTable)}
                 disabled={!selectedTable}
-                className={`flex items-center px-3 lg:px-4 py-2 text-sm lg:text-base rounded-md transition-colors ${
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors min-w-[130px] h-10 ${
                   selectedTable 
                     ? 'text-blue-100 bg-blue-500 hover:bg-blue-400' 
                     : 'text-blue-300 bg-blue-600 cursor-not-allowed'
                 }`}
               >
-                <Edit className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
+                <Edit className="h-4 w-4 mr-2" />
                 {t('manageTable')}
               </button>
               <button
                 onClick={() => selectedTable && handleDeleteTableClick(selectedTable)}
                 disabled={!selectedTable}
-                className={`flex items-center px-3 lg:px-4 py-2 text-sm lg:text-base rounded-md transition-colors ${
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors min-w-[120px] h-10 ${
                   selectedTable 
                     ? 'text-red-100 bg-red-500 hover:bg-red-400' 
                     : 'text-red-300 bg-red-600 cursor-not-allowed'
                 }`}
               >
-                <Trash2 className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
+                <Trash2 className="h-4 w-4 mr-2" />
                 {t('deleteTable')}
               </button>
               <button
                 onClick={onAddTable}
-                className="flex items-center px-3 lg:px-4 py-2 text-sm lg:text-base text-green-100 bg-green-500 rounded-md hover:bg-green-400 transition-colors"
+                className="flex items-center px-4 py-2 text-sm font-medium text-green-100 bg-green-500 rounded-md hover:bg-green-400 transition-colors min-w-[110px] h-10"
               >
-                <Plus className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
+                <Plus className="h-4 w-4 mr-2" />
                 {t('addTable')}
               </button>
             </div>

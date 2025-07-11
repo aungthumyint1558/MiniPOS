@@ -1,9 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { Save, Upload, Download, Trash2, Plus, Edit, X, User, Shield, Mail, Send, Check } from 'lucide-react';
+import { Save, Upload, Download, Trash2, Plus, Edit, X, User, Shield } from 'lucide-react';
 import { DatabaseSettings } from '../database/localStorage';
-import { sendEmailViaService, validateEmailConfig } from '../utils/emailService';
 
 interface SettingsProps {
   settings: DatabaseSettings | null;
@@ -40,17 +39,6 @@ const Settings: React.FC<SettingsProps> = ({
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editingRole, setEditingRole] = useState<any>(null);
-  const [emailSettings, setEmailSettings] = useState({
-    smtpServer: '',
-    smtpPort: 587,
-    smtpUsername: '',
-    smtpPassword: '',
-    fromEmail: '',
-    fromName: '',
-    enableTLS: true,
-    testEmailRecipient: ''
-  });
-  const [emailTestStatus, setEmailTestStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Available permissions
@@ -235,96 +223,6 @@ const Settings: React.FC<SettingsProps> = ({
     }
   };
 
-  const handleSendTestEmail = async () => {
-    if (!emailSettings.testEmailRecipient) {
-      alert('Please enter a test email recipient.');
-      return;
-    }
-
-    if (!emailSettings.smtpServer || !emailSettings.smtpUsername || !emailSettings.smtpPassword) {
-      alert('Please configure SMTP settings first.');
-      return;
-    }
-    setEmailTestStatus('sending');
-    
-    try {
-      // Use EmailJS or similar service for client-side email sending
-      const emailData = {
-        to_email: emailSettings.testEmailRecipient,
-        from_name: emailSettings.fromName || 'POS System',
-        from_email: emailSettings.fromEmail || emailSettings.smtpUsername,
-        subject: 'Test Email',
-        message: 'That is test email from POS software.',
-        smtp_server: emailSettings.smtpServer,
-        smtp_port: emailSettings.smtpPort,
-        smtp_username: emailSettings.smtpUsername,
-        smtp_password: emailSettings.smtpPassword,
-        enable_tls: emailSettings.enableTLS
-      };
-
-      // Since we can't directly send SMTP emails from browser, we'll use a workaround
-      // Option 1: Use EmailJS (requires setup)
-      // Option 2: Use mailto: link as fallback
-      // Option 3: Show instructions for manual testing
-      
-      const success = await sendEmailViaService(emailData);
-      
-      if (success) {
-        setEmailTestStatus('success');
-        setTimeout(() => setEmailTestStatus('idle'), 3000);
-        alert(`Test email sent successfully to ${emailSettings.testEmailRecipient}!`);
-      } else {
-        // Fallback: Open mailto link
-        const subject = encodeURIComponent('Test Email');
-        const body = encodeURIComponent('That is test email from POS software.');
-        const mailtoLink = `mailto:${emailSettings.testEmailRecipient}?subject=${subject}&body=${body}`;
-        
-        // Show instructions instead of automatically opening email client
-        setEmailTestStatus('error');
-        setTimeout(() => setEmailTestStatus('idle'), 3000);
-        
-        const userChoice = confirm(
-          'Direct email sending is not available in browser environment.\n\n' +
-          'To test email functionality:\n' +
-          '1. Click "OK" to copy email details\n' +
-          '2. Manually send an email with:\n' +
-          '   - To: ' + emailSettings.testEmailRecipient + '\n' +
-          '   - Subject: Test Email\n' +
-          '   - Body: That is test email from POS software.\n\n' +
-          'Or click "Cancel" to configure a backend email service.'
-        );
-        
-        if (userChoice) {
-          // Copy email details to clipboard if possible
-          const emailDetails = `To: ${emailSettings.testEmailRecipient}\nSubject: Test Email\nBody: That is test email from POS software.`;
-          
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(emailDetails).then(() => {
-              alert('Email details copied to clipboard! You can now paste them into your email client.');
-            }).catch(() => {
-              alert('Email details:\n\n' + emailDetails + '\n\nPlease copy these details manually to your email client.');
-            });
-          } else {
-            alert('Email details:\n\n' + emailDetails + '\n\nPlease copy these details manually to your email client.');
-          }
-        } else {
-          alert('To enable automatic email sending, please set up a backend email service or use EmailJS integration.');
-        }
-      }
-    } catch (error) {
-      console.error('Email sending error:', error);
-      setEmailTestStatus('error');
-      setTimeout(() => setEmailTestStatus('idle'), 3000);
-      alert('Failed to send test email. Please check your email settings and try again.');
-    }
-  };
-
-  const handleSaveEmailSettings = () => {
-    // Save email settings to local storage or your preferred storage method
-    localStorage.setItem('email_settings', JSON.stringify(emailSettings));
-    alert('Email settings saved successfully!');
-  };
-
   const getRoleName = (roleId: string) => {
     const role = roles.find(r => r.id === roleId);
     return role ? role.name : 'Unknown Role';
@@ -337,8 +235,7 @@ const Settings: React.FC<SettingsProps> = ({
   const tabs = [
     { id: 'general', label: t('generalSettings'), icon: Save },
     ...(canManageUsers ? [{ id: 'users', label: t('userManagement'), icon: User }] : []),
-    ...(canManageRoles ? [{ id: 'roles', label: t('rolesPermissions'), icon: Shield }] : []),
-    { id: 'email', label: t('emailIntegration'), icon: Mail }
+    ...(canManageRoles ? [{ id: 'roles', label: t('rolesPermissions'), icon: Shield }] : [])
   ];
 
   return (
@@ -675,193 +572,6 @@ const Settings: React.FC<SettingsProps> = ({
                       </div>
                     </div>
                   ))}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'email' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('emailIntegration')}</h3>
-                  <p className="text-sm text-gray-600 mb-6">
-                    Configure SMTP settings to enable email functionality for reports and notifications.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('smtpServer')}
-                    </label>
-                    <input
-                      type="text"
-                      value={emailSettings.smtpServer}
-                      onChange={(e) => setEmailSettings({ ...emailSettings, smtpServer: e.target.value })}
-                      placeholder="smtp.gmail.com"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('smtpPort')}
-                    </label>
-                    <input
-                      type="number"
-                      value={emailSettings.smtpPort}
-                      onChange={(e) => setEmailSettings({ ...emailSettings, smtpPort: parseInt(e.target.value) || 587 })}
-                      placeholder="587"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('smtpUsername')}
-                    </label>
-                    <input
-                      type="text"
-                      value={emailSettings.smtpUsername}
-                      onChange={(e) => setEmailSettings({ ...emailSettings, smtpUsername: e.target.value })}
-                      placeholder="your-email@gmail.com"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('smtpPassword')}
-                    </label>
-                    <input
-                      type="password"
-                      value={emailSettings.smtpPassword}
-                      onChange={(e) => setEmailSettings({ ...emailSettings, smtpPassword: e.target.value })}
-                      placeholder="App password or email password"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('fromEmail')}
-                    </label>
-                    <input
-                      type="email"
-                      value={emailSettings.fromEmail}
-                      onChange={(e) => setEmailSettings({ ...emailSettings, fromEmail: e.target.value })}
-                      placeholder="noreply@restaurant.com"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('fromName')}
-                    </label>
-                    <input
-                      type="text"
-                      value={emailSettings.fromName}
-                      onChange={(e) => setEmailSettings({ ...emailSettings, fromName: e.target.value })}
-                      placeholder="Restaurant POS System"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="enableTLS"
-                    checked={emailSettings.enableTLS}
-                    onChange={(e) => setEmailSettings({ ...emailSettings, enableTLS: e.target.checked })}
-                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="enableTLS" className="ml-2 block text-sm text-gray-900">
-                    {t('enableTLS')}
-                  </label>
-                </div>
-
-                <div className="border-t border-gray-200 pt-6">
-                  <h4 className="text-md font-semibold text-gray-900 mb-4">{t('testEmail')}</h4>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Send a test email to verify your SMTP configuration. The test email will have:
-                    <br />
-                    <strong>Subject:</strong> Test Email
-                    <br />
-                    <strong>Body:</strong> That is test email from POS software.
-                  </p>
-                  <div className="flex space-x-4">
-                    <div className="flex-1">
-                      <input
-                        type="email"
-                        value={emailSettings.testEmailRecipient}
-                        onChange={(e) => setEmailSettings({ ...emailSettings, testEmailRecipient: e.target.value })}
-                        placeholder="test@example.com"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                    </div>
-                    <button
-                      onClick={handleSendTestEmail}
-                      disabled={emailTestStatus === 'sending'}
-                      className={`flex items-center px-4 py-2 rounded-md font-medium transition-colors ${
-                        emailTestStatus === 'sending'
-                          ? 'bg-gray-400 text-white cursor-not-allowed'
-                          : emailTestStatus === 'success'
-                          ? 'bg-green-600 text-white'
-                          : emailTestStatus === 'error'
-                          ? 'bg-red-600 text-white'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
-                    >
-                      {emailTestStatus === 'sending' ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Sending...
-                        </>
-                      ) : emailTestStatus === 'success' ? (
-                        <>
-                          <Check className="h-4 w-4 mr-2" />
-                          Sent!
-                        </>
-                      ) : emailTestStatus === 'error' ? (
-                        <>
-                          <X className="h-4 w-4 mr-2" />
-                          Failed
-                        </>
-                      ) : (
-                        <>
-                          <Send className="h-4 w-4 mr-2" />
-                          {t('sendTestEmail')}
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex space-x-4">
-                  <button
-                    onClick={handleSaveEmailSettings}
-                    className="flex items-center px-6 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {t('saveEmailSettings')}
-                  </button>
-                  <button
-                    onClick={() => {
-                      // Load saved email settings
-                      const saved = localStorage.getItem('email_settings');
-                      if (saved) {
-                        setEmailSettings(JSON.parse(saved));
-                        alert('Email settings loaded successfully!');
-                      } else {
-                        alert('No saved email settings found.');
-                      }
-                    }}
-                    className="flex items-center px-6 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    Load Settings
-                  </button>
                 </div>
               </div>
             )}

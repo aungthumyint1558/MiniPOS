@@ -51,7 +51,7 @@ class LocalStorageDatabase {
         restaurantName: 'Restaurant POS',
         description: 'Professional Point of Sale System',
         currency: 'MMK',
-        taxRate: 8.5,
+        taxRate: 5,
         serviceCharge: 0,
         serviceChargeEnabled: false,
         notifications: true,

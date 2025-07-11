@@ -137,20 +137,6 @@ export const translations = {
     updateRole: 'Update Role',
     roleName: 'Role Name',
     assignPermissions: 'Assign Permissions',
-    
-    // Email Integration
-    emailIntegration: 'Email Integration',
-    smtpConfiguration: 'SMTP Configuration',
-    smtpServer: 'SMTP Server',
-    smtpPort: 'SMTP Port',
-    smtpUsername: 'Username/Email',
-    smtpPassword: 'Password/App Password',
-    fromEmail: 'From Email',
-    fromName: 'From Name',
-    enableTLS: 'Enable TLS/SSL',
-    testEmail: 'Test Email',
-    sendTestEmail: 'Send Test Email',
-    saveEmailSettings: 'Save Email Settings',
   },
   
   my: {
@@ -291,20 +277,6 @@ export const translations = {
     updateRole: 'အခန်းကဏ္ဍပြင်ဆင်ရန်',
     roleName: 'အခန်းကဏ္ဍအမည်',
     assignPermissions: 'ခွင့်ပြုချက်များသတ်မှတ်ရန်',
-    
-    // Email Integration
-    emailIntegration: 'အီးမေးလ်ပေါင်းစပ်မှု',
-    smtpConfiguration: 'SMTP ဖွဲ့စည်းမှု',
-    smtpServer: 'SMTP ဆာဗာ',
-    smtpPort: 'SMTP ပို့တ်',
-    smtpUsername: 'အသုံးပြုသူအမည်/အီးမေးလ်',
-    smtpPassword: 'စကားဝှက်/အက်ပ်စကားဝှက်',
-    fromEmail: 'ပို့သူအီးမေးလ်',
-    fromName: 'ပို့သူအမည်',
-    enableTLS: 'TLS/SSL ဖွင့်ရန်',
-    testEmail: 'စမ်းသပ်အီးမေးလ်',
-    sendTestEmail: 'စမ်းသပ်အီးမေးလ်ပို့ရန်',
-    saveEmailSettings: 'အီးမေးလ်ဆက်တင်များသိမ်းရန်',
   }
 };
 
