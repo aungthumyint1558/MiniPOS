@@ -22,7 +22,6 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
   const [emailRecipient, setEmailRecipient] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailMessage, setEmailMessage] = useState('');
-  const [exportType, setExportType] = useState<'pdf' | 'excel'>('pdf');
 
   // Calculate table status counts
   const availableTables = tables.filter(table => table.status === 'available').length;
@@ -173,14 +172,6 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
 
       // Show success message and email option
       alert(`Excel file "${filename}" has been downloaded successfully!`);
-      
-      // Ask if user wants to email the report
-      if (confirm('Would you like to email this report?')) {
-        setExportType('excel');
-        setEmailSubject(`Order Report - ${selectedDate || currentDate}`);
-        setEmailMessage(`Please find attached the detailed order report for ${selectedDate || 'all dates'}.`);
-        setIsEmailModalOpen(true);
-      }
     } catch (error) {
       console.error('Export error:', error);
       alert('Failed to export data. Please try again.');
@@ -304,14 +295,6 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
       doc.save(filename);
       
       alert(`PDF file "${filename}" has been downloaded successfully!`);
-      
-      // Ask if user wants to email the report
-      if (confirm('Would you like to email this report?')) {
-        setExportType('pdf');
-        setEmailSubject(`Order Report - ${selectedDate || currentDate}`);
-        setEmailMessage(`Please find attached the detailed order report for ${selectedDate || 'all dates'}.`);
-        setIsEmailModalOpen(true);
-      }
     } catch (error) {
       console.error('PDF export error:', error);
       alert('Failed to export PDF. Please try again.');
