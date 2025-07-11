@@ -545,6 +545,7 @@ const Settings: React.FC<SettingsProps> = ({
                           <button
                             onClick={() => handleEditRole(role)}
                             className="text-purple-600 hover:text-purple-900"
+                           title="Edit role"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
@@ -552,6 +553,7 @@ const Settings: React.FC<SettingsProps> = ({
                             <button
                               onClick={() => onDeleteRole(role.id)}
                               className="text-red-600 hover:text-red-900"
+                             title="Delete role"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
