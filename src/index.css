@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Myanmar Font */
+@import url('https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;500;600;700&display=swap');
+
+/* Apply Myanmar font when language is Myanmar */
+.myanmar-font {
+  font-family: 'Pyidaungsu', 'Myanmar Text', sans-serif !important;
+}
+
 /* Dark theme styles */
 .dark {
   --bg-primary: #1f2937;

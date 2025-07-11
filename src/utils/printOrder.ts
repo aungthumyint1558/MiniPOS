@@ -12,6 +12,7 @@ export interface PrintOrderData {
   total: number;
   restaurantName: string;
   serviceChargeRate: number;
+  serviceChargeEnabled: boolean;
   taxRate: number;
 }
 
@@ -33,7 +34,7 @@ export const printOrder = (orderData: PrintOrderData) => {
         <title>Order Receipt - ${orderData.orderId}</title>
         <style>
           body {
-            font-family: 'Courier New', monospace;
+            font-family: ${orderData.restaurantName.includes('Myanmar') || orderData.restaurantName.includes('မြန်မာ') ? "'Pyidaungsu', 'Myanmar Text', sans-serif" : "'Courier New', monospace"};
             font-size: 12px;
             line-height: 1.4;
             margin: 0;
@@ -139,10 +140,12 @@ export const printOrder = (orderData: PrintOrderData) => {
               <span>Subtotal:</span>
               <span>MMK ${orderData.subtotal.toLocaleString()}</span>
             </div>
+            ${orderData.serviceChargeEnabled ? `
             <div class="total-line">
               <span>Service Charge (${orderData.serviceChargeRate}%):</span>
               <span>MMK ${orderData.serviceCharge.toLocaleString()}</span>
             </div>
+            ` : ''}
             <div class="total-line">
               <span>Tax (${orderData.taxRate}%):</span>
               <span>MMK ${orderData.tax.toLocaleString()}</span>

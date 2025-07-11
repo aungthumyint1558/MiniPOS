@@ -96,8 +96,23 @@ export const translations = {
     orderSaved: 'Order saved successfully!',
     settingsSaved: 'Settings saved successfully!',
     confirmDelete: 'Are you sure you want to delete this item?',
+    confirmCancelOrder: 'Are you sure you want to cancel this order? All items will be removed.',
     noOrderItems: 'No Order Items',
     noCompletedOrders: 'No completed orders yet',
+    
+    // Login
+    username: 'Username',
+    password: 'Password',
+    signIn: 'Sign In',
+    signingIn: 'Signing In...',
+    enterUsername: 'Enter your username',
+    enterPassword: 'Enter your password',
+    invalidCredentials: 'Invalid username or password',
+    poweredBy: 'Powered by',
+    
+    // New fields
+    description: 'Description',
+    cancelOrder: 'Cancel Order',
     
     // User Management
     userManagement: 'User Management',
@@ -211,8 +226,23 @@ export const translations = {
     orderSaved: 'အော်ဒါအောင်မြင်စွာသိမ်းဆည်းပါပြီ!',
     settingsSaved: 'ဆက်တင်များအောင်မြင်စွာသိမ်းဆည်းပါပြီ!',
     confirmDelete: 'ဤပစ္စည်းကိုဖျက်ရန်သေချာပါသလား?',
+    confirmCancelOrder: 'ဤအော်ဒါကိုပယ်ဖျက်ရန်သေချာပါသလား? ပစ္စည်းအားလုံးကိုဖယ်ရှားပါမည်။',
     noOrderItems: 'အော်ဒါပစ္စည်းများမရှိပါ',
     noCompletedOrders: 'ပြီးမြောက်သောအော်ဒါများမရှိသေးပါ',
+    
+    // Login
+    username: 'အသုံးပြုသူအမည်',
+    password: 'စကားဝှက်',
+    signIn: 'ဝင်ရောက်ရန်',
+    signingIn: 'ဝင်ရောက်နေသည်...',
+    enterUsername: 'သင့်အသုံးပြုသူအမည်ရိုက်ထည့်ပါ',
+    enterPassword: 'သင့်စကားဝှက်ရိုက်ထည့်ပါ',
+    invalidCredentials: 'အသုံးပြုသူအမည် သို့မဟုတ် စကားဝှက်မမှန်ကန်ပါ',
+    poweredBy: 'စွမ်းအားပေးသည်',
+    
+    // New fields
+    description: 'ဖော်ပြချက်',
+    cancelOrder: 'အော်ဒါပယ်ဖျက်',
     
     // User Management
     userManagement: 'အသုံးပြုသူစီမံခန့်ခွဲမှု',

@@ -8,6 +8,7 @@ interface ViewOrderModalProps {
   table: Table;
   onClose: () => void;
   onCompleteOrder?: (tableId: string, orderItems: any[], total: number) => void;
+  onCancelOrder?: (tableId: string) => void;
   serviceChargeRate: number;
   serviceChargeEnabled: boolean;
   taxRate: number;
@@ -17,6 +18,7 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
   table, 
   onClose, 
   onCompleteOrder,
+  onCancelOrder,
   serviceChargeRate, 
   serviceChargeEnabled,
   taxRate 
@@ -82,10 +84,20 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
       total: getTotalAmount(),
       restaurantName: 'Restaurant POS',
       serviceChargeRate,
+      serviceChargeEnabled,
       taxRate
     };
 
     printOrder(printData);
+  };
+
+  const handleCancelOrder = () => {
+    if (confirm(t('confirmCancelOrder'))) {
+      if (onCancelOrder) {
+        onCancelOrder(table.id);
+        onClose();
+      }
+    }
   };
 
   return (
@@ -155,7 +167,7 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
           {Array.isArray(table.orderItems) && table.orderItems.length > 0 ? (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
-                {t('orderItems')} ({table.orderItems.length})
+                {t('orderItems')}
               </h3>
               
               <div className="space-y-3 max-h-64 overflow-y-auto">
@@ -229,28 +241,35 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
 
         {/* Footer */}
         <div className="border-t border-gray-200 p-4 sm:p-6 bg-white">
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-2">
             {Array.isArray(table.orderItems) && table.orderItems.length > 0 && (
+              <>
               <button
                 onClick={handlePrintOrder}
-                className="flex-1 flex items-center justify-center px-4 py-3 text-sm sm:text-base font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 transition-colors min-h-[44px]"
+                className="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 transition-colors"
               >
                 <Printer className="h-4 w-4 mr-2" />
                 {t('printOrder')}
               </button>
-            )}
-            {Array.isArray(table.orderItems) && table.orderItems.length > 0 && onCompleteOrder && (
               <button
                 onClick={handleCompleteOrder}
-                className="flex-1 flex items-center justify-center px-4 py-3 text-sm sm:text-base font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors min-h-[44px]"
+                className="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors"
               >
                 <Check className="h-4 w-4 mr-2" />
                 {t('completeOrder')}
               </button>
+              <button
+                onClick={handleCancelOrder}
+                className="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+              >
+                <X className="h-4 w-4 mr-2" />
+                {t('cancelOrder')}
+              </button>
+              </>
             )}
             <button
               onClick={onClose}
-              className="flex-1 flex items-center justify-center px-4 py-3 text-sm sm:text-base font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors min-h-[44px]"
+              className="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
             >
               <X className="h-4 w-4 mr-2" />
               {t('close')}

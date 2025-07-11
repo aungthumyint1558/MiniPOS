@@ -19,6 +19,15 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
+  useEffect(() => {
+    // Apply Myanmar font when language is Myanmar
+    if (language === 'my') {
+      document.body.classList.add('myanmar-font');
+    } else {
+      document.body.classList.remove('myanmar-font');
+    }
+  }, [language]);
+
   const setLanguage = (lang: 'en' | 'my') => {
     setLanguageState(lang);
     localStorage.setItem('pos_language', lang);

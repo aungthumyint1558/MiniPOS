@@ -132,6 +132,20 @@ const TableManagement: React.FC<TableManagementProps> = ({
     }
   };
 
+  const handleCancelOrder = (tableId: string) => {
+    const table = tables.find(t => t.id === tableId);
+    if (table) {
+      onUpdateTable({ 
+        ...table, 
+        status: 'available',
+        orderItems: undefined,
+        orderTotal: undefined,
+        orderId: undefined,
+        customer: undefined
+      });
+    }
+  };
+
   const handleEditTable = (tableId: string) => {
     const table = tables.find(t => t.id === tableId);
     if (table) {
@@ -379,6 +393,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
             setViewingTable(null);
           }}
           onCompleteOrder={handleCompleteOrder}
+          onCancelOrder={handleCancelOrder}
           serviceChargeRate={settings?.serviceCharge || 10}
           serviceChargeEnabled={settings?.serviceChargeEnabled ?? true}
           taxRate={settings?.taxRate || 8.5}
