@@ -75,12 +75,13 @@ const Settings: React.FC<SettingsProps> = ({
   });
 
   const [emailSettings, setEmailSettings] = useState({
+    provider: 'gmail',
     smtpServer: 'smtp.gmail.com',
     smtpPort: 587,
     smtpUsername: '',
     smtpPassword: '',
     fromEmail: '',
-    fromName: 'Restaurant POS',
+    fromName: settings?.restaurantName || 'Restaurant POS',
     enableTLS: true,
     testEmail: ''
   });
@@ -123,9 +124,75 @@ const Settings: React.FC<SettingsProps> = ({
     return currentUserPermissions.includes(permission) || currentUserPermissions.length === 0;
   };
 
+  // Load email settings from localStorage on component mount
+  React.useEffect(() => {
+    const savedEmailSettings = localStorage.getItem('restaurant_pos_email_settings');
+    if (savedEmailSettings) {
+      try {
+        const parsed = JSON.parse(savedEmailSettings);
+        setEmailSettings(prev => ({ ...prev, ...parsed }));
+      } catch (error) {
+        console.error('Error loading email settings:', error);
+      }
+    }
+  }, []);
+
+  // Email provider configurations
+  const emailProviders = {
+    gmail: {
+      name: 'Gmail',
+      smtpServer: 'smtp.gmail.com',
+      smtpPort: 587,
+      enableTLS: true,
+      instructions: 'Use your Gmail address and App Password (not regular password)'
+    },
+    office365: {
+      name: 'Office 365 / Outlook',
+      smtpServer: 'smtp-mail.outlook.com',
+      smtpPort: 587,
+      enableTLS: true,
+      instructions: 'Use your Office 365 email and password'
+    },
+    yahoo: {
+      name: 'Yahoo Mail',
+      smtpServer: 'smtp.mail.yahoo.com',
+      smtpPort: 587,
+      enableTLS: true,
+      instructions: 'Use your Yahoo email and App Password'
+    },
+    custom: {
+      name: 'Custom SMTP',
+      smtpServer: '',
+      smtpPort: 587,
+      enableTLS: true,
+      instructions: 'Enter your custom SMTP server details'
+    }
+  };
+
   const handleSaveSettings = () => {
     onUpdateSettings(formData);
     alert(t('settingsSaved'));
+  };
+
+  const handleSaveEmailSettings = () => {
+    try {
+      localStorage.setItem('restaurant_pos_email_settings', JSON.stringify(emailSettings));
+      alert('Email settings saved successfully!');
+    } catch (error) {
+      console.error('Error saving email settings:', error);
+      alert('Failed to save email settings. Please try again.');
+    }
+  };
+
+  const handleProviderChange = (provider: string) => {
+    const providerConfig = emailProviders[provider as keyof typeof emailProviders];
+    setEmailSettings(prev => ({
+      ...prev,
+      provider,
+      smtpServer: providerConfig.smtpServer,
+      smtpPort: providerConfig.smtpPort,
+      enableTLS: providerConfig.enableTLS
+    }));
   };
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -286,6 +353,13 @@ const Settings: React.FC<SettingsProps> = ({
   };
 
   const handleEditRole = (role: any) => {
+    // Allow editing of all roles, but show warning for system roles
+    if (role.isSystem) {
+      if (!confirm(`"${role.name}" is a system role. Modifying it may affect system functionality. Are you sure you want to continue?`)) {
+        return;
+      }
+    }
+    
     setEditingRole(role);
     setNewRole({
       name: role.name,
@@ -685,12 +759,7 @@ const Settings: React.FC<SettingsProps> = ({
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleEditRole(role)}
-                      disabled={role.isSystem}
-                      className={`flex items-center px-3 py-2 rounded-md transition-colors ${
-                        role.isSystem
-                          ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
-                          : 'text-blue-600 bg-blue-50 hover:bg-blue-100'
-                      }`}
+                      className="flex items-center px-3 py-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
                     >
                       <Edit className="h-4 w-4 mr-1" />
                       Update Role
@@ -745,6 +814,25 @@ const Settings: React.FC<SettingsProps> = ({
         </div>
         
         <div className="p-6 space-y-6">
+          {/* Email Provider Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Email Provider
+            </label>
+            <select
+              value={emailSettings.provider}
+              onChange={(e) => handleProviderChange(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              {Object.entries(emailProviders).map(([key, provider]) => (
+                <option key={key} value={key}>{provider.name}</option>
+              ))}
+            </select>
+            <p className="text-sm text-gray-600 mt-2">
+              {emailProviders[emailSettings.provider as keyof typeof emailProviders]?.instructions}
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -755,6 +843,7 @@ const Settings: React.FC<SettingsProps> = ({
                 value={emailSettings.smtpServer}
                 onChange={(e) => setEmailSettings({ ...emailSettings, smtpServer: e.target.value })}
                 placeholder="smtp.gmail.com"
+                disabled={emailSettings.provider !== 'custom'}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -768,6 +857,7 @@ const Settings: React.FC<SettingsProps> = ({
                 value={emailSettings.smtpPort}
                 onChange={(e) => setEmailSettings({ ...emailSettings, smtpPort: parseInt(e.target.value) || 587 })}
                 placeholder="587"
+                disabled={emailSettings.provider !== 'custom'}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -835,6 +925,7 @@ const Settings: React.FC<SettingsProps> = ({
               id="enableTLS"
               checked={emailSettings.enableTLS}
               onChange={(e) => setEmailSettings({ ...emailSettings, enableTLS: e.target.checked })}
+              disabled={emailSettings.provider !== 'custom'}
               className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
             />
             <label htmlFor="enableTLS" className="text-sm font-medium text-gray-700">
@@ -842,15 +933,26 @@ const Settings: React.FC<SettingsProps> = ({
             </label>
           </div>
 
+          {/* Save Email Settings Button */}
+          <div className="border-t border-gray-200 pt-6">
+            <button
+              onClick={handleSaveEmailSettings}
+              className="w-full flex items-center justify-center px-6 py-3 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              <Save className="h-5 w-5 mr-2" />
+              Save Email Configuration
+            </button>
+          </div>
+
           {/* Test Email Section */}
           <div className="border-t border-gray-200 pt-6">
             <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('testEmail')}</h4>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
               <p className="text-sm text-blue-800">
-                <strong>Instructions:</strong> Fill in your SMTP settings above, then enter a test email address below to verify your configuration.
+                <strong>Instructions:</strong> Save your email configuration above, then enter a test email address below to verify your settings.
               </p>
               <p className="text-xs text-blue-600 mt-2">
-                For Gmail: Use your Gmail address as username and generate an App Password instead of your regular password.
+                {emailProviders[emailSettings.provider as keyof typeof emailProviders]?.instructions}
               </p>
             </div>
             
