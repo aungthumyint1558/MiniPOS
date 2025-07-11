@@ -111,7 +111,13 @@ function App() {
 
   // Get user permissions based on role
   const getUserPermissions = (roleName: string) => {
-    const role = roles.find(r => r.name === roleName);
+    // Handle default admin login
+    if (roleName === 'Admin') {
+      const adminRole = roles.find(r => r.id === 'admin');
+      return adminRole ? adminRole.permissions : [];
+    }
+    
+    const role = roles.find(r => r.name === roleName || r.id === roleName.toLowerCase());
     return role ? role.permissions : [];
   };
 
@@ -233,15 +239,20 @@ function App() {
 
   // Check if user has access to the current tab
   const hasAccessToTab = (tabId: string) => {
+    // Admin has access to everything
+    if (currentUserRole === 'Admin' || currentUserPermissions.length === 0) {
+      return true;
+    }
+    
     switch (tabId) {
       case 'pos':
-        return true; // POS should always be accessible
+        return hasPermission('pos_access');
       case 'reports':
         return hasPermission('reports_view');
       case 'manage':
-        return hasPermission('menu_view');
+        return hasPermission('menu_view') || hasPermission('menu_manage');
       case 'settings':
-        return true; // Settings should always be accessible
+        return hasPermission('settings_view') || hasPermission('settings_manage');
       default:
         return false;
     }
