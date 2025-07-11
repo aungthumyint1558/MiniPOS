@@ -148,6 +148,7 @@ function App() {
             onDeleteTable={handleDeleteTable}
             onAddTable={handleAddTable}
             serviceChargeRate={settings?.serviceCharge || 10}
+            serviceChargeEnabled={settings?.serviceChargeEnabled ?? true}
             taxRate={settings?.taxRate || 8.5}
             onCompleteOrder={handleCompleteOrder}
             settings={settings}
@@ -177,6 +178,7 @@ function App() {
             onUpdateTable={handleUpdateTable}
             onDeleteTable={handleDeleteTable}
             serviceChargeRate={settings?.serviceCharge || 10}
+            serviceChargeEnabled={settings?.serviceChargeEnabled ?? true}
             taxRate={settings?.taxRate || 8.5}
             onCompleteOrder={handleCompleteOrder}
             settings={settings}

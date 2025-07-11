@@ -9,6 +9,7 @@ interface ViewOrderModalProps {
   onClose: () => void;
   onCompleteOrder?: (tableId: string, orderItems: any[], total: number) => void;
   serviceChargeRate: number;
+  serviceChargeEnabled: boolean;
   taxRate: number;
 }
 
@@ -17,6 +18,7 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
   onClose, 
   onCompleteOrder,
   serviceChargeRate, 
+  serviceChargeEnabled,
   taxRate 
 }) => {
   const { t } = useLanguage();
@@ -27,6 +29,7 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
   };
 
   const getServiceCharge = () => {
+    if (!serviceChargeEnabled) return 0;
     return (getSubtotal() * serviceChargeRate) / 100;
   };
 
@@ -190,12 +193,14 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
                     </span>
                   </div>
                   
+                  {serviceChargeEnabled && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-700">{t('serviceCharge')} ({serviceChargeRate}%):</span>
                     <span className="font-semibold text-gray-900">
                       MMK {getServiceCharge().toLocaleString()}
                     </span>
                   </div>
+                  )}
                   
                   <div className="flex items-center justify-between">
                     <span className="text-gray-700">{t('tax')} ({taxRate}%):</span>

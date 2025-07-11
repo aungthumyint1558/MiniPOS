@@ -380,6 +380,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
           }}
           onCompleteOrder={handleCompleteOrder}
           serviceChargeRate={settings?.serviceCharge || 10}
+          serviceChargeEnabled={settings?.serviceChargeEnabled ?? true}
           taxRate={settings?.taxRate || 8.5}
         />
       )}
