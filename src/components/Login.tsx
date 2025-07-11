@@ -10,8 +10,7 @@ interface LoginProps {
 
 const Login: React.FC<LoginProps> = ({ onLogin, users, roles }) => {
   const { t } = useLanguage();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -31,16 +30,16 @@ const Login: React.FC<LoginProps> = ({ onLogin, users, roles }) => {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Check default admin credentials
-    if (username === 'admin' && email === 'admin@restaurant.com' && password === 'admin') {
+    if ((usernameOrEmail === 'admin' || usernameOrEmail === 'admin@restaurant.com') && password === 'admin') {
       onLogin('Admin User', 'Admin');
       setIsLoading(false);
       return;
     }
 
-    // Check against user management users (by both username and email)
+    // Check against user management users (by username OR email)
     const user = users.find(u => 
-      u.name.toLowerCase() === username.toLowerCase() && 
-      u.email.toLowerCase() === email.toLowerCase() && 
+      (u.name.toLowerCase() === usernameOrEmail.toLowerCase() || 
+       u.email.toLowerCase() === usernameOrEmail.toLowerCase()) && 
       u.password === password &&
       u.isActive
     );
@@ -51,8 +50,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, users, roles }) => {
     } else {
       // Check if user exists but is inactive
       const inactiveUser = users.find(u => 
-        u.name.toLowerCase() === username.toLowerCase() && 
-        u.email.toLowerCase() === email.toLowerCase() && 
+        (u.name.toLowerCase() === usernameOrEmail.toLowerCase() || 
+         u.email.toLowerCase() === usernameOrEmail.toLowerCase()) && 
         u.password === password &&
         !u.isActive
       );
@@ -60,7 +59,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, users, roles }) => {
       if (inactiveUser) {
         setError('Account is inactive. Please contact administrator.');
       } else {
-        setError('Invalid username, email, or password');
+        setError('Invalid username/email or password');
       }
     }
     
@@ -82,10 +81,10 @@ const Login: React.FC<LoginProps> = ({ onLogin, users, roles }) => {
         {/* Login Form */}
         <div className="p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username Field */}
+            {/* Username/Email Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('username')}
+                Username or Email
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -93,34 +92,15 @@ const Login: React.FC<LoginProps> = ({ onLogin, users, roles }) => {
                 </div>
                 <input
                   type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={usernameOrEmail}
+                  onChange={(e) => setUsernameOrEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  placeholder={t('enterUsername')}
+                  placeholder="Enter username or email"
                   required
                 />
               </div>
             </div>
 
-            {/* Email Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  placeholder="Enter your email address"
-                  required
-                />
-              </div>
-            </div>
             {/* Password Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
