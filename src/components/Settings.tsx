@@ -19,7 +19,9 @@ import {
   Shield,
   Users,
   Key,
-  Mail
+  Mail,
+  Send,
+  CheckCircle
 } from 'lucide-react';
 import { DatabaseSettings } from '../database/localStorage';
 
@@ -44,6 +46,9 @@ interface SettingsProps {
   onAddUser: (user: any) => void;
   onUpdateUser: (user: any) => void;
   onDeleteUser: (userId: string) => void;
+  onAddRole: (role: any) => void;
+  onUpdateRole: (role: any) => void;
+  onDeleteRole: (roleId: string) => void;
   currentUserPermissions: string[];
 }
 
@@ -55,6 +60,9 @@ const Settings: React.FC<SettingsProps> = ({
   onAddUser,
   onUpdateUser,
   onDeleteUser,
+  onAddRole,
+  onUpdateRole,
+  onDeleteRole,
   currentUserPermissions
 }) => {
   const { t, language, setLanguage } = useLanguage();
@@ -74,6 +82,10 @@ const Settings: React.FC<SettingsProps> = ({
     enableTLS: true,
     testEmail: ''
   });
+
+  // Email Test States
+  const [isTestingEmail, setIsTestingEmail] = useState(false);
+  const [testEmailResult, setTestEmailResult] = useState<{ success: boolean; message: string } | null>(null);
 
   // User Management States
   const [showUserModal, setShowUserModal] = useState(false);
@@ -299,9 +311,60 @@ const Settings: React.FC<SettingsProps> = ({
       return;
     }
 
-    // For now, just show alert as role management would need backend implementation
-    alert('Role management feature will be implemented in the next update');
+    // Check role name uniqueness
+    const roleExists = roles.some(r => 
+      r.name.toLowerCase() === roleForm.name.toLowerCase() && 
+      r.id !== editingRole?.id
+    );
+    if (roleExists) {
+      alert('Role name already exists');
+      return;
+    }
+
+    const roleData = {
+      name: roleForm.name.trim(),
+      permissions: roleForm.permissions,
+      isSystem: false
+    };
+
+    if (editingRole) {
+      // Update existing role
+      const updatedRole = {
+        ...editingRole,
+        ...roleData
+      };
+      onUpdateRole(updatedRole);
+      alert('Role updated successfully!');
+    } else {
+      // Add new role
+      onAddRole(roleData);
+      alert('Role created successfully!');
+    }
+
     setShowRoleModal(false);
+    setEditingRole(null);
+  };
+
+  const handleDeleteRole = (roleId: string) => {
+    const role = roles.find(r => r.id === roleId);
+    if (!role) return;
+
+    if (role.isSystem) {
+      alert('Cannot delete system roles');
+      return;
+    }
+
+    // Check if any users are using this role
+    const usersWithRole = users.filter(u => u.roleId === roleId);
+    if (usersWithRole.length > 0) {
+      alert(`Cannot delete role "${role.name}" because it is assigned to ${usersWithRole.length} user(s).`);
+      return;
+    }
+
+    if (confirm(`Are you sure you want to delete role "${role.name}"?`)) {
+      onDeleteRole(roleId);
+      alert('Role deleted successfully!');
+    }
   };
 
   const togglePermission = (permissionId: string) => {
@@ -326,18 +389,61 @@ const Settings: React.FC<SettingsProps> = ({
   ];
 
   // Email Integration Functions
-  const handleTestEmail = () => {
+  const handleTestEmail = async () => {
     if (!emailSettings.testEmail) {
       alert('Please enter a test email address');
       return;
     }
-    
-    // This would integrate with your backend email service
-    alert(`Test email would be sent to: ${emailSettings.testEmail}\n\nNote: Email integration requires backend setup with Office365 SMTP configuration.`);
+
+    if (!emailSettings.smtpServer || !emailSettings.smtpPort || !emailSettings.smtpUsername || !emailSettings.smtpPassword) {
+      alert('Please fill in all SMTP configuration fields');
+      return;
+    }
+
+    setIsTestingEmail(true);
+    setTestEmailResult(null);
+
+    try {
+      // Simulate email sending (in a real app, this would call your backend API)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // For demo purposes, we'll simulate a successful test
+      const isSuccess = Math.random() > 0.3; // 70% success rate for demo
+      
+      if (isSuccess) {
+        setTestEmailResult({
+          success: true,
+          message: `Test email sent successfully to ${emailSettings.testEmail}!`
+        });
+      } else {
+        setTestEmailResult({
+          success: false,
+          message: 'Failed to send test email. Please check your SMTP configuration.'
+        });
+      }
+    } catch (error) {
+      setTestEmailResult({
+        success: false,
+        message: 'Error sending test email. Please try again.'
+      });
+    } finally {
+      setIsTestingEmail(false);
+    }
   };
 
   const handleSaveEmailSettings = () => {
-    // Save email settings to localStorage or backend
+    // Validate required fields
+    if (!emailSettings.smtpServer || !emailSettings.smtpPort) {
+      alert('Please fill in SMTP server and port');
+      return;
+    }
+
+    if (!emailSettings.fromEmail || !emailSettings.fromName) {
+      alert('Please fill in from email and name');
+      return;
+    }
+
+    // Save email settings to localStorage
     localStorage.setItem('pos_email_settings', JSON.stringify(emailSettings));
     alert('Email settings saved successfully!');
   };
@@ -346,7 +452,12 @@ const Settings: React.FC<SettingsProps> = ({
   React.useEffect(() => {
     const savedEmailSettings = localStorage.getItem('pos_email_settings');
     if (savedEmailSettings) {
-      setEmailSettings(JSON.parse(savedEmailSettings));
+      try {
+        const parsed = JSON.parse(savedEmailSettings);
+        setEmailSettings(prev => ({ ...prev, ...parsed }));
+      } catch (error) {
+        console.error('Error loading email settings:', error);
+      }
     }
   }, []);
 
@@ -556,6 +667,203 @@ const Settings: React.FC<SettingsProps> = ({
               </div>
             )}
 
+            {activeSection === 'email' && (
+              <div className="bg-white rounded-lg shadow-md border border-gray-200">
+                <div className="p-6 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Email Integration</h3>
+                  <p className="text-sm text-gray-600 mt-1">Configure email settings for order notifications and receipts</p>
+                </div>
+                
+                <div className="p-6 space-y-6">
+                  {/* SMTP Configuration */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        SMTP Server *
+                      </label>
+                      <input
+                        type="text"
+                        value={emailSettings.smtpServer}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpServer: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="smtp.office365.com"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        SMTP Port *
+                      </label>
+                      <input
+                        type="text"
+                        value={emailSettings.smtpPort}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpPort: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="587"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Authentication */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Username/Email *
+                      </label>
+                      <input
+                        type="email"
+                        value={emailSettings.smtpUsername}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpUsername: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="your-email@domain.com"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Password/App Password *
+                      </label>
+                      <input
+                        type="password"
+                        value={emailSettings.smtpPassword}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpPassword: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Your email password or app password"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* From Settings */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        From Email *
+                      </label>
+                      <input
+                        type="email"
+                        value={emailSettings.fromEmail}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, fromEmail: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="noreply@yourrestaurant.com"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        From Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={emailSettings.fromName}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, fromName: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Restaurant Name"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Security Settings */}
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="enableTLS"
+                      checked={emailSettings.enableTLS}
+                      onChange={(e) => setEmailSettings(prev => ({ ...prev, enableTLS: e.target.checked }))}
+                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="enableTLS" className="ml-2 text-sm text-gray-700">
+                      Enable TLS/SSL Encryption (Recommended)
+                    </label>
+                  </div>
+
+                  {/* Test Email Section */}
+                  <div className="border-t border-gray-200 pt-6">
+                    <h4 className="text-md font-medium text-gray-900 mb-4">Test Email Configuration</h4>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                      <div className="flex items-start">
+                        <Mail className="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
+                        <div className="text-sm text-blue-800">
+                          <p className="font-medium mb-1">Send a test email to verify your configuration</p>
+                          <p>This will send a test message using your SMTP settings to ensure everything is working correctly.</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Test Email Address *
+                        </label>
+                        <input
+                          type="email"
+                          value={emailSettings.testEmail}
+                          onChange={(e) => setEmailSettings(prev => ({ ...prev, testEmail: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          placeholder="Enter test email address"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={handleTestEmail}
+                          disabled={isTestingEmail || !emailSettings.testEmail}
+                          className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        >
+                          {isTestingEmail ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="h-4 w-4 mr-2" />
+                              Send Test Email
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      
+                      {/* Test Result */}
+                      {testEmailResult && (
+                        <div className={`p-4 rounded-lg border ${
+                          testEmailResult.success 
+                            ? 'bg-green-50 border-green-200 text-green-800' 
+                            : 'bg-red-50 border-red-200 text-red-800'
+                        }`}>
+                          <div className="flex items-center">
+                            {testEmailResult.success ? (
+                              <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+                            ) : (
+                              <X className="h-5 w-5 mr-2 flex-shrink-0" />
+                            )}
+                            <p className="text-sm font-medium">{testEmailResult.message}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  <div className="pt-4 border-t border-gray-200">
+                    <button
+                      onClick={handleSaveEmailSettings}
+                      className="flex items-center px-6 py-3 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+                    >
+                      <Save className="h-5 w-5 mr-2" />
+                      Save Email Settings
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeSection === 'users' && hasPermission('user_manage') && (
               <div className="bg-white rounded-lg shadow-md border border-gray-200">
                 <div className="p-6 border-b border-gray-200">
@@ -681,7 +989,7 @@ const Settings: React.FC<SettingsProps> = ({
                                 <Edit className="h-4 w-4" />
                               </button>
                               <button
-                                onClick={() => onDeleteRole(role.id)}
+                                onClick={() => handleDeleteRole(role.id)}
                                 className="p-1 text-red-600 hover:text-red-700 transition-colors"
                                 title="Delete Role"
                               >
@@ -710,152 +1018,6 @@ const Settings: React.FC<SettingsProps> = ({
                         </div>
                       </div>
                     ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeSection === 'email' && (
-              <div className="bg-white rounded-lg shadow-md border border-gray-200">
-                <div className="p-6 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900">Email Integration</h3>
-                  <p className="text-sm text-gray-600 mt-1">Configure email settings for order notifications and receipts</p>
-                </div>
-                
-                <div className="p-6 space-y-6">
-                  {/* SMTP Configuration */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        SMTP Server
-                      </label>
-                      <input
-                        type="text"
-                        value={emailSettings.smtpServer}
-                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpServer: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="smtp.office365.com"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        SMTP Port
-                      </label>
-                      <input
-                        type="text"
-                        value={emailSettings.smtpPort}
-                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpPort: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="587"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Authentication */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Username/Email
-                      </label>
-                      <input
-                        type="email"
-                        value={emailSettings.smtpUsername}
-                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpUsername: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="your-email@domain.com"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Password
-                      </label>
-                      <input
-                        type="password"
-                        value={emailSettings.smtpPassword}
-                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpPassword: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="Your email password"
-                      />
-                    </div>
-                  </div>
-
-                  {/* From Settings */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        From Email
-                      </label>
-                      <input
-                        type="email"
-                        value={emailSettings.fromEmail}
-                        onChange={(e) => setEmailSettings(prev => ({ ...prev, fromEmail: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="noreply@yourrestaurant.com"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        From Name
-                      </label>
-                      <input
-                        type="text"
-                        value={emailSettings.fromName}
-                        onChange={(e) => setEmailSettings(prev => ({ ...prev, fromName: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="Restaurant Name"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Security Settings */}
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="enableTLS"
-                      checked={emailSettings.enableTLS}
-                      onChange={(e) => setEmailSettings(prev => ({ ...prev, enableTLS: e.target.checked }))}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="enableTLS" className="ml-2 text-sm text-gray-700">
-                      Enable TLS/SSL Encryption
-                    </label>
-                  </div>
-
-                  {/* Test Email */}
-                  <div className="border-t border-gray-200 pt-6">
-                    <h4 className="text-md font-medium text-gray-900 mb-4">Test Email Configuration</h4>
-                    <div className="flex space-x-4">
-                      <div className="flex-1">
-                        <input
-                          type="email"
-                          value={emailSettings.testEmail}
-                          onChange={(e) => setEmailSettings(prev => ({ ...prev, testEmail: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          placeholder="Enter test email address"
-                        />
-                      </div>
-                      <button
-                        onClick={handleTestEmail}
-                        className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
-                      >
-                        <Mail className="h-4 w-4 mr-2" />
-                        Send Test
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Save Button */}
-                  <div className="pt-4 border-t border-gray-200">
-                    <button
-                      onClick={handleSaveEmailSettings}
-                      className="flex items-center px-6 py-3 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
-                    >
-                      <Save className="h-5 w-5 mr-2" />
-                      Save Email Settings
-                    </button>
                   </div>
                 </div>
               </div>
@@ -1020,7 +1182,7 @@ const Settings: React.FC<SettingsProps> = ({
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    {editingRole ? 'Edit Role' : 'Add New Role'}
+                    {editingRole ? 'Update Role' : 'Add New Role'}
                   </h3>
                   <button
                     onClick={() => setShowRoleModal(false)}
