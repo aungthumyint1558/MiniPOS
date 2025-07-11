@@ -37,13 +37,13 @@ const TableCard: React.FC<TableCardProps> = ({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'available':
-        return <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4" />;
+        return <CheckCircle2 className="h-4 w-4" />;
       case 'occupied':
-        return <Coffee className="h-3 w-3 sm:h-4 sm:w-4" />;
+        return <Coffee className="h-4 w-4" />;
       case 'reserved':
-        return <Clock className="h-3 w-3 sm:h-4 sm:w-4" />;
+        return <Clock className="h-4 w-4" />;
       default:
-        return <Users className="h-3 w-3 sm:h-4 sm:w-4" />;
+        return <Users className="h-4 w-4" />;
     }
   };
 
@@ -65,78 +65,87 @@ const TableCard: React.FC<TableCardProps> = ({
     action();
   };
 
+  // Check if table has order items to determine if View Order should be enabled
+  const hasOrderItems = table.orderItems && table.orderItems.length > 0;
+  const canFreeTable = !hasOrderItems; // Can't free table if it has order items
+
   return (
-    <div className={`bg-white rounded-lg shadow-md border-2 p-3 sm:p-4 lg:p-6 hover:shadow-lg transition-all ${
+    <div className={`bg-white rounded-lg shadow-md border-2 p-6 hover:shadow-lg transition-all ${
       isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
     }`}>
-      <div className="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
-        <div className="flex items-center space-x-1 sm:space-x-2">
-          <Users className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500" />
-          <span className="text-xs sm:text-sm text-gray-600">{table.seats} seats</span>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-2">
+          <Users className="h-4 w-4 text-gray-500" />
+          <span className="text-sm text-gray-600">{table.seats} seats</span>
         </div>
-        <div className={`inline-flex items-center px-1.5 sm:px-2 lg:px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(table.status)}`}>
+        <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(table.status)}`}>
           {getStatusIcon(table.status)}
-          <span className="ml-1 hidden sm:inline">{getStatusText(table.status)}</span>
+          <span className="ml-1">{getStatusText(table.status)}</span>
         </div>
       </div>
       
-      <div className="text-center mb-2 sm:mb-3 lg:mb-4">
-        <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900">Table {table.number}</h3>
+      <div className="text-center mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Table {table.number}</h3>
         {table.customer && (
-          <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">Customer: {table.customer}</p>
+          <p className="text-sm text-gray-600 mt-1 truncate">Customer: {table.customer}</p>
         )}
         {table.orderId && (
           <p className="text-xs text-blue-600 mt-1 truncate">Order: {table.orderId}</p>
         )}
         {table.orderTotal && (
-          <p className="text-xs sm:text-sm text-green-600 mt-1 font-medium">
+          <p className="text-sm text-green-600 mt-1 font-medium">
             Total: MMK {table.orderTotal.toLocaleString()}
           </p>
         )}
       </div>
       
-      <div className="space-y-1.5 sm:space-y-2">
-        <div className="flex gap-1 sm:gap-2">
+      <div className="space-y-2">
+        <div className="flex gap-2">
           <button
             onClick={(e) => handleActionClick(e, () => onFree(table.id))}
-            className="flex-1 px-1.5 sm:px-2 lg:px-3 py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors"
+            disabled={!canFreeTable}
+            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+              canFreeTable 
+                ? 'text-white bg-emerald-600 hover:bg-emerald-700' 
+                : 'text-gray-400 bg-gray-200 cursor-not-allowed'
+            }`}
           >
             Free
           </button>
           <button
             onClick={(e) => handleActionClick(e, () => onReserve(table.id))}
-            className="flex-1 px-1.5 sm:px-2 lg:px-3 py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700 transition-colors"
+            className="flex-1 px-3 py-2 text-sm font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700 transition-colors"
           >
             Reserve
           </button>
         </div>
         
-        <div className="flex gap-1 sm:gap-2">
+        <div className="flex gap-2">
           <button
             onClick={(e) => handleActionClick(e, () => onOccupy(table.id))}
-            className="flex-1 px-1.5 sm:px-2 lg:px-3 py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+            className="flex-1 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
           >
             Occupy
           </button>
           <button
             onClick={(e) => handleActionClick(e, () => onManage(table.id))}
-            className="flex-1 px-1.5 sm:px-2 lg:px-3 py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+            className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
           >
             Manage
           </button>
         </div>
 
-        {/* View Order Button */}
+        {/* View Order Button - Full width, always enabled when there are order items */}
         <button
           onClick={(e) => handleActionClick(e, () => onViewOrder(table.id))}
-          disabled={table.orderItems && table.orderItems.length > 0}
-          className={`flex-1 px-1.5 sm:px-2 lg:px-3 py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm font-medium text-white rounded-md transition-colors ${
-            table.orderItems && table.orderItems.length > 0
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-emerald-600 hover:bg-emerald-700'
+          disabled={!hasOrderItems}
+          className={`w-full flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            hasOrderItems
+              ? 'text-white bg-emerald-600 hover:bg-emerald-700'
+              : 'text-gray-400 bg-gray-200 cursor-not-allowed'
           }`}
         >
-          <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+          <Eye className="h-4 w-4 mr-2" />
           View Order
         </button>
       </div>
