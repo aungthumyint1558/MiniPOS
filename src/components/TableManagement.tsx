@@ -364,9 +364,9 @@ const TableManagement: React.FC<TableManagementProps> = ({
         {showDeleteModal && tableToDelete && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg p-4 lg:p-6 w-full max-w-md">
-              <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4">Delete Table</h3>
+              <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4">{t('deleteTable')}</h3>
               <p className="text-sm lg:text-base text-gray-600 mb-6">
-                Are you sure you want to delete Table {tables.find(t => t.id === tableToDelete)?.number}? This action cannot be undone.
+                {t('deleteTableConfirm')} {tables.find(t => t.id === tableToDelete)?.number}? {t('actionCannotBeUndone')}
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button

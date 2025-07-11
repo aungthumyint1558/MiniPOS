@@ -110,13 +110,13 @@ const TableCard: React.FC<TableCardProps> = ({
                 : 'text-gray-400 bg-gray-200 cursor-not-allowed'
             }`}
           >
-            Free
+            {t('free')}
           </button>
           <button
             onClick={(e) => handleActionClick(e, () => onReserve(table.id))}
             className="flex-1 px-3 py-2 text-sm font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700 transition-colors"
           >
-            Reserve
+            {t('reserve')}
           </button>
         </div>
         
@@ -125,13 +125,13 @@ const TableCard: React.FC<TableCardProps> = ({
             onClick={(e) => handleActionClick(e, () => onOccupy(table.id))}
             className="flex-1 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
           >
-            Occupy
+            {t('occupy')}
           </button>
           <button
             onClick={(e) => handleActionClick(e, () => onManage(table.id))}
             className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
           >
-            Manage
+            {t('manage')}
           </button>
         </div>
 
@@ -146,7 +146,7 @@ const TableCard: React.FC<TableCardProps> = ({
           }`}
         >
           <Eye className="h-4 w-4 mr-2" />
-          View Order
+          {t('viewOrder')}
         </button>
       </div>
     </div>

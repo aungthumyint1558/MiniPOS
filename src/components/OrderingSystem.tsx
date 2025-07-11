@@ -293,7 +293,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
                   <div className="mt-3 lg:mt-4 pt-3 lg:pt-4 border-t border-gray-200">
                     {/* Subtotal */}
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm lg:text-base text-gray-700">Subtotal:</span>
+                      <span className="text-sm lg:text-base text-gray-700">{t('subtotal')}:</span>
                       <span className="text-sm lg:text-base font-semibold text-gray-900">
                         MMK {getSubtotal().toLocaleString()}
                       </span>
@@ -302,7 +302,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
                     {/* Service Charge */}
                     {serviceChargeEnabled && (
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm lg:text-base text-gray-700">Service Charge ({serviceChargeRate}%):</span>
+                      <span className="text-sm lg:text-base text-gray-700">{t('serviceCharge')} ({serviceChargeRate}%):</span>
                       <span className="text-sm lg:text-base font-semibold text-gray-900">
                         MMK {getServiceCharge().toLocaleString()}
                       </span>
@@ -311,7 +311,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
                     
                     {/* Tax */}
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm lg:text-base text-gray-700">Tax ({taxRate}%):</span>
+                      <span className="text-sm lg:text-base text-gray-700">{t('tax')} ({taxRate}%):</span>
                       <span className="text-sm lg:text-base font-semibold text-gray-900">
                         MMK {getTaxAmount().toLocaleString()}
                       </span>
@@ -319,7 +319,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
                     
                     {/* Total */}
                     <div className="flex items-center justify-between mb-4 pt-2 border-t border-gray-200">
-                      <span className="text-base lg:text-lg font-semibold text-gray-900">Total:</span>
+                      <span className="text-base lg:text-lg font-semibold text-gray-900">{t('total')}:</span>
                       <span className="text-lg lg:text-2xl font-bold text-green-600">
                         MMK {getTotalAmount().toLocaleString()}
                       </span>
@@ -332,7 +332,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
                         className="w-full flex items-center justify-center px-4 lg:px-6 py-2.5 lg:py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors text-sm lg:text-base"
                       >
                         <Save className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
-                        Save Order
+                        {t('saveOrder')}
                       </button>
                     </div>
                   </div>

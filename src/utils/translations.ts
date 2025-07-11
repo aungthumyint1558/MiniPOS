@@ -137,6 +137,132 @@ export const translations = {
     updateRole: 'Update Role',
     roleName: 'Role Name',
     assignPermissions: 'Assign Permissions',
+    
+    // Additional translations for complete Myanmar support
+    manageSection: 'Menu Management',
+    addNewMenuItem: 'Add New Menu Item',
+    itemPrice: 'Item Price',
+    enterItemName: 'Enter item name',
+    enterPrice: 'Enter price',
+    enterDescription: 'Enter description',
+    uploadImage: 'Upload Image',
+    uploadJPEGImage: 'Upload JPEG Image',
+    preview: 'Preview',
+    addMenuItem: 'Add Menu Item',
+    editMenuItem: 'Edit Menu Item',
+    deleteMenuItem: 'Delete Menu Item',
+    confirmDeleteMenuItem: 'Are you sure you want to delete this menu item?',
+    cannotDeleteCategory: 'Cannot delete category with items',
+    deleteCategory: 'Delete Category',
+    categoryName: 'Category Name',
+    enterCategoryName: 'Enter category name',
+    addCategory: 'Add Category',
+    
+    // Table management
+    tableManagement: 'Table Management',
+    manageTablesEfficiently: 'Manage your restaurant tables efficiently',
+    tableSeats: 'Table Seats',
+    numberOfSeats: 'Number of Seats',
+    tableStatus: 'Table Status',
+    customerName: 'Customer Name',
+    saveChanges: 'Save Changes',
+    deleteTableConfirm: 'Are you sure you want to delete this table?',
+    actionCannotBeUndone: 'This action cannot be undone.',
+    
+    // Ordering system
+    orderingSystem: 'Ordering System',
+    allItems: 'All Items',
+    addToCart: 'Add to Cart',
+    removeFromCart: 'Remove from Cart',
+    cartEmpty: 'No items in cart',
+    addItemsFromMenu: 'Add items from the menu',
+    each: 'each',
+    
+    // Reports
+    revenueAnalytics: 'Revenue Analytics',
+    financialOverview: 'Financial overview and performance metrics',
+    currentTableAvailability: 'Current table availability and occupancy',
+    viewDetailedOrder: 'View detailed order information with items breakdown',
+    noCompletedOrdersYet: 'No completed orders yet',
+    ordersWillAppear: 'Orders will appear here once completed',
+    orderItems: 'Order Items',
+    moreItems: 'more items',
+    
+    // Login page
+    usernameOrEmail: 'Username or Email',
+    enterUsernameOrEmail: 'Enter username or email',
+    accountInactive: 'Account is inactive. Please contact administrator.',
+    invalidUsernameOrPassword: 'Invalid username/email or password',
+    
+    // Settings page
+    configureRestaurantPOS: 'Configure your restaurant POS system',
+    chooseFile: 'Choose File',
+    active: 'Active',
+    inactive: 'Inactive',
+    actions: 'Actions',
+    status: 'Status',
+    permissions: 'permissions',
+    editRole: 'Edit role',
+    deleteRole: 'Delete role',
+    activeUser: 'Active User',
+    
+    // Additional common terms
+    back: 'Back',
+    next: 'Next',
+    previous: 'Previous',
+    loading: 'Loading',
+    error: 'Error',
+    success: 'Success',
+    warning: 'Warning',
+    info: 'Information',
+    confirm: 'Confirm',
+    yes: 'Yes',
+    no: 'No',
+    ok: 'OK',
+    apply: 'Apply',
+    reset: 'Reset',
+    clear: 'Clear',
+    search: 'Search',
+    filter: 'Filter',
+    sort: 'Sort',
+    view: 'View',
+    hide: 'Hide',
+    show: 'Show',
+    expand: 'Expand',
+    collapse: 'Collapse',
+    refresh: 'Refresh',
+    reload: 'Reload',
+    
+    // File operations
+    upload: 'Upload',
+    download: 'Download',
+    import: 'Import',
+    export: 'Export',
+    
+    // Time and date
+    today: 'Today',
+    yesterday: 'Yesterday',
+    thisWeek: 'This Week',
+    thisMonth: 'This Month',
+    thisYear: 'This Year',
+    date: 'Date',
+    time: 'Time',
+    
+    // Numbers and quantities
+    qty: 'Qty',
+    amount: 'Amount',
+    count: 'Count',
+    number: 'Number',
+    
+    // Status messages
+    saved: 'Saved',
+    updated: 'Updated',
+    deleted: 'Deleted',
+    created: 'Created',
+    completed: 'Completed',
+    pending: 'Pending',
+    processing: 'Processing',
+    failed: 'Failed'
   },
   
   my: {
@@ -277,6 +403,132 @@ export const translations = {
     updateRole: 'အခန်းကဏ္ဍပြင်ဆင်ရန်',
     roleName: 'အခန်းကဏ္ဍအမည်',
     assignPermissions: 'ခွင့်ပြုချက်များသတ်မှတ်ရန်',
+    
+    // Additional translations for complete Myanmar support
+    manageSection: 'မီနူးစီမံခန့်ခွဲမှု',
+    addNewMenuItem: 'မီနူးပစ္စည်းအသစ်ထည့်ရန်',
+    itemPrice: 'ပစ္စည်းစျေးနှုန်း',
+    enterItemName: 'ပစ္စည်းအမည်ရိုက်ထည့်ပါ',
+    enterPrice: 'စျေးနှုန်းရိုက်ထည့်ပါ',
+    enterDescription: 'ဖော်ပြချက်ရိုက်ထည့်ပါ',
+    uploadImage: 'ပုံတင်ရန်',
+    uploadJPEGImage: 'JPEG ပုံတင်ရန်',
+    preview: 'အစမ်းကြည့်ရှုမှု',
+    addMenuItem: 'မီနူးပစ္စည်းထည့်ရန်',
+    editMenuItem: 'မီနူးပစ္စည်းပြင်ရန်',
+    deleteMenuItem: 'မီနူးပစ္စည်းဖျက်ရန်',
+    confirmDeleteMenuItem: 'ဤမီနူးပစ္စည်းကိုဖျက်ရန်သေချာပါသလား?',
+    cannotDeleteCategory: 'ပစ္စည်းများပါဝင်သောအမျိုးအစားကိုဖျက်၍မရပါ',
+    deleteCategory: 'အမျိုးအစားဖျက်ရန်',
+    categoryName: 'အမျိုးအစားအမည်',
+    enterCategoryName: 'အမျိုးအစားအမည်ရိုက်ထည့်ပါ',
+    addCategory: 'အမျိုးအစားထည့်ရန်',
+    
+    // Table management
+    tableManagement: 'စားပွဲစီမံခန့်ခွဲမှု',
+    manageTablesEfficiently: 'သင့်စားသောက်ဆိုင်၏စားပွဲများကိုထိရောက်စွာစီမံပါ',
+    tableSeats: 'စားပွဲခုံများ',
+    numberOfSeats: 'ခုံအရေအတွက်',
+    tableStatus: 'စားပွဲအခြေအနေ',
+    customerName: 'ဖောက်သည်အမည်',
+    saveChanges: 'ပြောင်းလဲမှုများသိမ်းရန်',
+    deleteTableConfirm: 'ဤစားပွဲကိုဖျက်ရန်သေချာပါသလား?',
+    actionCannotBeUndone: 'ဤလုပ်ဆောင်ချက်ကိုပြန်လည်ပြင်ဆင်၍မရပါ။',
+    
+    // Ordering system
+    orderingSystem: 'အော်ဒါစနစ်',
+    allItems: 'ပစ္စည်းအားလုံး',
+    addToCart: 'ခြင်းတောင်းထဲထည့်ရန်',
+    removeFromCart: 'ခြင်းတောင်းမှဖယ်ရန်',
+    cartEmpty: 'ခြင်းတောင်းတွင်ပစ္စည်းမရှိပါ',
+    addItemsFromMenu: 'မီနူးမှပစ္စည်းများထည့်ပါ',
+    each: 'တစ်ခုစီ',
+    
+    // Reports
+    revenueAnalytics: 'ဝင်ငွေခွဲခြမ်းစိတ်ဖြာမှု',
+    financialOverview: 'ငွေကြေးဆိုင်ရာခြုံငုံသုံးသပ်ချက်နှင့်စွမ်းဆောင်ရည်မက်ထရစ်များ',
+    currentTableAvailability: 'လက်ရှိစားပွဲရရှိနိုင်မှုနှင့်အသုံးပြုမှု',
+    viewDetailedOrder: 'ပစ္စည်းများအသေးစိတ်ပါဝင်သောအော်ဒါအချက်အလက်များကြည့်ရှုပါ',
+    noCompletedOrdersYet: 'ပြီးမြောက်သောအော်ဒါများမရှိသေးပါ',
+    ordersWillAppear: 'အော်ဒါများပြီးမြောက်သောအခါဤနေရာတွင်ပေါ်လာပါမည်',
+    orderItems: 'အော်ဒါပစ္စည်းများ',
+    moreItems: 'နောက်ထပ်ပစ္စည်းများ',
+    
+    // Login page
+    usernameOrEmail: 'အသုံးပြုသူအမည် သို့မဟုတ် အီးမေးလ်',
+    enterUsernameOrEmail: 'အသုံးပြုသူအမည် သို့မဟုတ် အီးမေးလ်ရိုက်ထည့်ပါ',
+    accountInactive: 'အကောင့်မသက်ဝင်ပါ။ စီမံခန့်ခွဲသူကိုဆက်သွယ်ပါ။',
+    invalidUsernameOrPassword: 'အသုံးပြုသူအမည်/အီးမေးလ် သို့မဟုတ် စကားဝှက်မမှန်ကန်ပါ',
+    
+    // Settings page
+    configureRestaurantPOS: 'သင့်စားသောက်ဆိုင် POS စနစ်ကိုပြင်ဆင်သတ်မှတ်ပါ',
+    chooseFile: 'ဖိုင်ရွေးချယ်ရန်',
+    active: 'သက်ဝင်',
+    inactive: 'မသက်ဝင်',
+    actions: 'လုပ်ဆောင်ချက်များ',
+    status: 'အခြေအနေ',
+    permissions: 'ခွင့်ပြုချက်များ',
+    editRole: 'အခန်းကဏ္ဍပြင်ရန်',
+    deleteRole: 'အခန်းကဏ္ဍဖျက်ရန်',
+    activeUser: 'သက်ဝင်သောအသုံးပြုသူ',
+    
+    // Additional common terms
+    back: 'နောက်သို့',
+    next: 'ရှေ့သို့',
+    previous: 'ယခင်',
+    loading: 'ဖွင့်နေသည်',
+    error: 'အမှား',
+    success: 'အောင်မြင်',
+    warning: 'သတိပေးချက်',
+    info: 'အချက်အလက်',
+    confirm: 'အတည်ပြု',
+    yes: 'ဟုတ်ကဲ့',
+    no: 'မဟုတ်ပါ',
+    ok: 'ကောင်းပါပြီ',
+    apply: 'အသုံးချ',
+    reset: 'ပြန်လည်သတ်မှတ်',
+    clear: 'ရှင်းလင်း',
+    search: 'ရှာဖွေ',
+    filter: 'စစ်ထုတ်',
+    sort: 'စီစဉ်',
+    view: 'ကြည့်ရှု',
+    hide: 'ဖုံးကွယ်',
+    show: 'ပြသ',
+    expand: 'ချဲ့ထွင်',
+    collapse: 'ခေါက်သိမ်း',
+    refresh: 'ပြန်လည်ဖွင့်',
+    reload: 'ပြန်လည်တင်',
+    
+    // File operations
+    upload: 'တင်ရန်',
+    download: 'ဒေါင်းလုဒ်',
+    import: 'တင်သွင်း',
+    export: 'ထုတ်ယူ',
+    
+    // Time and date
+    today: 'ယနေ့',
+    yesterday: 'မနေ့က',
+    thisWeek: 'ဤအပတ်',
+    thisMonth: 'ဤလ',
+    thisYear: 'ဤနှစ်',
+    date: 'ရက်စွဲ',
+    time: 'အချိန်',
+    
+    // Numbers and quantities
+    qty: 'အရေအတွက်',
+    amount: 'ပမာណ',
+    count: 'ရေတွက်',
+    number: 'နံပါတ်',
+    
+    // Status messages
+    saved: 'သိမ်းဆည်းပြီး',
+    updated: 'ပြင်ဆင်ပြီး',
+    deleted: 'ဖျက်ပြီး',
+    created: 'ဖန်တီးပြီး',
+    completed: 'ပြီးမြောက်ပြီး',
+    pending: 'စောင့်ဆိုင်းနေ',
+    processing: 'လုပ်ဆောင်နေ',
+    failed: 'မအောင်မြင်'
   }
 };
 

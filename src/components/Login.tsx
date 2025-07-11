@@ -57,9 +57,9 @@ const Login: React.FC<LoginProps> = ({ onLogin, users, roles }) => {
       );
       
       if (inactiveUser) {
-        setError('Account is inactive. Please contact administrator.');
+        setError(t('accountInactive'));
       } else {
-        setError('Invalid username/email or password');
+        setError(t('invalidUsernameOrPassword'));
       }
     }
     
@@ -84,7 +84,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, users, roles }) => {
             {/* Username/Email Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Username or Email
+                {t('usernameOrEmail')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -95,7 +95,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, users, roles }) => {
                   value={usernameOrEmail}
                   onChange={(e) => setUsernameOrEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  placeholder="Enter username or email"
+                  placeholder={t('enterUsernameOrEmail')}
                   required
                 />
               </div>

@@ -506,9 +506,9 @@ const ManageSection: React.FC<ManageSectionProps> = ({
       {showDeleteModal && itemToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Menu Item</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('deleteMenuItem')}</h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete "{menuItems.find(item => item.id === itemToDelete)?.name}"? This action cannot be undone.
+              {t('confirmDeleteMenuItem')} "{menuItems.find(item => item.id === itemToDelete)?.name}"? {t('actionCannotBeUndone')}
             </p>
             <div className="flex space-x-3">
               <button
@@ -516,7 +516,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                 className="flex items-center px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Delete
+                {t('delete')}
               </button>
               <button
                 onClick={() => {
@@ -526,7 +526,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                 className="flex items-center px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
               >
                 <X className="h-4 w-4 mr-2" />
-                Cancel
+                {t('cancel')}
               </button>
             </div>
           </div>

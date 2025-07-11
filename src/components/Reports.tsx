@@ -363,7 +363,7 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
                 className="flex items-center px-4 py-2 text-sm font-medium text-purple-100 bg-purple-500 rounded-md hover:bg-purple-400 transition-colors min-w-[120px] h-10"
               >
                 <FileText className="h-4 w-4 mr-2" />
-                Export PDF
+                {t('exportToPDF')}
               </button>
               
               <button
@@ -371,7 +371,7 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
                 className="flex items-center px-4 py-2 text-sm font-medium text-green-100 bg-green-500 rounded-md hover:bg-green-400 transition-colors min-w-[130px] h-10"
               >
                 <Download className="h-4 w-4 mr-2" />
-                Export Excel
+                {t('exportToExcel')}
               </button>
             </div>
           </div>
@@ -382,7 +382,7 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
           <div className="bg-white rounded-lg shadow-md border border-gray-200">
             <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-t-lg p-4 lg:p-6">
               <h3 className="text-xl font-bold text-white">{t('orderHistory')}</h3>
-              <p className="text-green-100 text-sm">View detailed order information with items breakdown</p>
+              <p className="text-green-100 text-sm">{t('viewDetailedOrder')}</p>
             </div>
             
             <div className="p-4 lg:p-6">
@@ -411,7 +411,7 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
                       {/* Order Items */}
                       {order.items && Array.isArray(order.items) && order.items.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-gray-200">
-                          <p className="text-xs font-medium text-gray-700 mb-2">Order Items:</p>
+                          <p className="text-xs font-medium text-gray-700 mb-2">{t('orderItems')}:</p>
                           <div className="space-y-1">
                             {order.items.slice(0, 3).map((item: any, index: number) => (
                               <div key={index} className="flex justify-between text-xs text-gray-600">
@@ -424,7 +424,7 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
                               </div>
                             ))}
                             {order.items.length > 3 && (
-                              <p className="text-xs text-gray-500">+{order.items.length - 3} more items</p>
+                              <p className="text-xs text-gray-500">+{order.items.length - 3} {t('moreItems')}</p>
                             )}
                           </div>
                         </div>
@@ -435,8 +435,8 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
               ) : (
                 <div className="flex flex-col items-center justify-center min-h-[200px] lg:min-h-[300px] bg-gray-50 rounded-lg">
                   <BarChart3 className="h-12 w-12 lg:h-16 lg:w-16 text-gray-400 mb-4" />
-                  <h4 className="text-base lg:text-lg font-medium text-gray-600 mb-2">No completed orders yet</h4>
-                  <p className="text-sm lg:text-base text-gray-500 text-center">Orders will appear here once completed</p>
+                  <h4 className="text-base lg:text-lg font-medium text-gray-600 mb-2">{t('noCompletedOrdersYet')}</h4>
+                  <p className="text-sm lg:text-base text-gray-500 text-center">{t('ordersWillAppear')}</p>
                 </div>
               )}
             </div>
@@ -447,8 +447,8 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
             {/* Revenue Summary */}
             <div className="bg-white rounded-lg shadow-md border border-gray-200">
               <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-4 lg:p-6">
-                <h3 className="text-lg lg:text-xl font-bold text-white">Revenue Summary</h3>
-                <p className="text-purple-100 text-sm">Financial overview and performance metrics</p>
+                <h3 className="text-lg lg:text-xl font-bold text-white">{t('revenueAnalytics')}</h3>
+                <p className="text-purple-100 text-sm">{t('financialOverview')}</p>
               </div>
               
               <div className="p-4 lg:p-6">
@@ -471,7 +471,7 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
             <div className="bg-white rounded-lg shadow-md border border-gray-200">
               <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-t-lg p-4 lg:p-6">
                 <h3 className="text-lg lg:text-xl font-bold text-white">{t('tableStatus')}</h3>
-                <p className="text-indigo-100 text-sm">Current table availability and occupancy</p>
+                <p className="text-indigo-100 text-sm">{t('currentTableAvailability')}</p>
               </div>
               
               <div className="p-4 lg:p-6 space-y-3 lg:space-y-4">
