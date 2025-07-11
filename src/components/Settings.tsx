@@ -312,6 +312,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
       </div>
 
       {activeSettingsTab === 'general' ? (
+      <>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Database Management Section */}
         <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
@@ -509,6 +510,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
           {t('saveSettings')}
         </button>
       </div>
+      </>
       ) : (
         /* User Management Section */
         <div className="space-y-6">
