@@ -404,14 +404,37 @@ const Settings: React.FC<SettingsProps> = ({
     setTestEmailResult(null);
 
     try {
-      // Simulate email sending (in a real app, this would call your backend API)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // For demo purposes, we'll simulate a successful test
-      const isSuccess = Math.random() > 0.3; // 70% success rate for demo
-      
-      if (isSuccess) {
-        setTestEmailResult({
+      // Make actual API call to backend email service
+      const response = await fetch('/api/send-test-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          smtpServer: emailSettings.smtpServer,
+          smtpPort: emailSettings.smtpPort,
+          smtpUsername: emailSettings.smtpUsername,
+          smtpPassword: emailSettings.smtpPassword,
+          fromEmail: emailSettings.fromEmail,
+          fromName: emailSettings.fromName,
+          enableTLS: emailSettings.enableTLS,
+          testEmail: emailSettings.testEmail
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setEmailTestResult({ 
+          success: true, 
+          message: `Test email sent successfully to ${emailSettings.testEmail}` 
+        });
+      } else {
+        setEmailTestResult({ 
+          success: false, 
+          message: result.message || 'Failed to send test email. Please check your SMTP configuration.' 
+        });
+      }
           success: true,
           message: `Test email sent successfully to ${emailSettings.testEmail}!`
         });
@@ -422,9 +445,10 @@ const Settings: React.FC<SettingsProps> = ({
         });
       }
     } catch (error) {
-      setTestEmailResult({
-        success: false,
-        message: 'Error sending test email. Please try again.'
+      // Fallback for development - show that backend is needed
+      setEmailTestResult({ 
+        success: false, 
+        message: 'Email backend not configured. This is a frontend-only demo. To send real emails, you need to set up a backend API endpoint at /api/send-test-email with SMTP functionality.' 
       });
     } finally {
       setIsTestingEmail(false);
@@ -1016,14 +1040,22 @@ const Settings: React.FC<SettingsProps> = ({
                             )}
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleEditRole(role)}
+                            className="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                          >
+                            Update Role
+                          </button>
+                          <button
+                            onClick={() => handleDeleteRole(role.id)}
+                            disabled={role.isSystem || getUsersWithRole(role.id).length > 0}
+                            className="p-2 text-red-600 hover:text-red-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                            title={role.isSystem ? 'Cannot delete system role' : getUsersWithRole(role.id).length > 0 ? 'Cannot delete role assigned to users' : 'Delete role'}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
 
         {/* User Modal */}
         {showUserModal && (
