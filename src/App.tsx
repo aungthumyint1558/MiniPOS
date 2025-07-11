@@ -288,7 +288,7 @@ function App() {
           />
         );
       case 'reports':
-        return <Reports tables={tables} orderHistory={orderHistory} onClearOrderHistory={clearOrderHistory} />;
+        return <Reports tables={tables} orderHistory={orderHistory} onClearOrderHistory={clearOrderHistory} settings={settings} />;
       case 'manage':
         return (
           <ManageSection

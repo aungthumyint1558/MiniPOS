@@ -59,7 +59,7 @@ const Settings: React.FC<SettingsProps> = ({
 }) => {
   const { t, language, setLanguage } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const [activeSection, setActiveSection] = useState<'general' | 'users' | 'roles'>('general');
+  const [activeSection, setActiveSection] = useState<'general' | 'users' | 'roles' | 'email'>('general');
   const [localSettings, setLocalSettings] = useState(settings || {});
   const logoInputRef = useRef<HTMLInputElement>(null);
   
@@ -702,6 +702,152 @@ const Settings: React.FC<SettingsProps> = ({
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeSection === 'email' && (
+              <div className="bg-white rounded-lg shadow-md border border-gray-200">
+                <div className="p-6 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Email Integration</h3>
+                  <p className="text-sm text-gray-600 mt-1">Configure email settings for order notifications and receipts</p>
+                </div>
+                
+                <div className="p-6 space-y-6">
+                  {/* SMTP Configuration */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        SMTP Server
+                      </label>
+                      <input
+                        type="text"
+                        value={emailSettings.smtpServer}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpServer: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="smtp.office365.com"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        SMTP Port
+                      </label>
+                      <input
+                        type="text"
+                        value={emailSettings.smtpPort}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpPort: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="587"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Authentication */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Username/Email
+                      </label>
+                      <input
+                        type="email"
+                        value={emailSettings.smtpUsername}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpUsername: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="your-email@domain.com"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        value={emailSettings.smtpPassword}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpPassword: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Your email password"
+                      />
+                    </div>
+                  </div>
+
+                  {/* From Settings */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        From Email
+                      </label>
+                      <input
+                        type="email"
+                        value={emailSettings.fromEmail}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, fromEmail: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="noreply@yourrestaurant.com"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        From Name
+                      </label>
+                      <input
+                        type="text"
+                        value={emailSettings.fromName}
+                        onChange={(e) => setEmailSettings(prev => ({ ...prev, fromName: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Restaurant Name"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Security Settings */}
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="enableTLS"
+                      checked={emailSettings.enableTLS}
+                      onChange={(e) => setEmailSettings(prev => ({ ...prev, enableTLS: e.target.checked }))}
+                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="enableTLS" className="ml-2 text-sm text-gray-700">
+                      Enable TLS/SSL Encryption
+                    </label>
+                  </div>
+
+                  {/* Test Email */}
+                  <div className="border-t border-gray-200 pt-6">
+                    <h4 className="text-md font-medium text-gray-900 mb-4">Test Email Configuration</h4>
+                    <div className="flex space-x-4">
+                      <div className="flex-1">
+                        <input
+                          type="email"
+                          value={emailSettings.testEmail}
+                          onChange={(e) => setEmailSettings(prev => ({ ...prev, testEmail: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          placeholder="Enter test email address"
+                        />
+                      </div>
+                      <button
+                        onClick={handleTestEmail}
+                        className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        Send Test
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  <div className="pt-4 border-t border-gray-200">
+                    <button
+                      onClick={handleSaveEmailSettings}
+                      className="flex items-center px-6 py-3 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+                    >
+                      <Save className="h-5 w-5 mr-2" />
+                      Save Email Settings
+                    </button>
                   </div>
                 </div>
               </div>

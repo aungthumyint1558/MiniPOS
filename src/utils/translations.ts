@@ -277,6 +277,20 @@ export const translations = {
     updateRole: 'အခန်းကဏ္ဍပြင်ဆင်ရန်',
     roleName: 'အခန်းကဏ္ဍအမည်',
     assignPermissions: 'ခွင့်ပြုချက်များသတ်မှတ်ရန်',
+    
+    // Email Integration
+    emailIntegration: 'အီးမေးလ်ပေါင်းစပ်မှု',
+    smtpConfiguration: 'SMTP ဖွဲ့စည်းမှု',
+    smtpServer: 'SMTP ဆာဗာ',
+    smtpPort: 'SMTP ပို့တ်',
+    smtpUsername: 'အသုံးပြုသူအမည်/အီးမေးလ်',
+    smtpPassword: 'စကားဝှက်/အက်ပ်စကားဝှက်',
+    fromEmail: 'ပို့သူအီးမေးလ်',
+    fromName: 'ပို့သူအမည်',
+    enableTLS: 'TLS/SSL ဖွင့်ရန်',
+    testEmail: 'စမ်းသပ်အီးမေးလ်',
+    sendTestEmail: 'စမ်းသပ်အီးမေးလ်ပို့ရန်',
+    saveEmailSettings: 'အီးမေးလ်ဆက်တင်များသိမ်းရန်',
   }
 };
 
