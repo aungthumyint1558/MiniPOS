@@ -299,7 +299,6 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
                     
                     {/* Service Charge */}
                     {serviceChargeEnabled && (
-                    {serviceChargeEnabled && (
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm lg:text-base text-gray-700">Service Charge ({serviceChargeRate}%):</span>
                       <span className="text-sm lg:text-base font-semibold text-gray-900">
