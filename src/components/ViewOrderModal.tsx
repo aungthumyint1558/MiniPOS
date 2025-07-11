@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { X, ShoppingCart, Clock, User, Receipt, Check } from 'lucide-react';
+import { X, ShoppingCart, Clock, User, Receipt, Check, Printer } from 'lucide-react';
 import { printOrder } from '../utils/printOrder';
 import { Table } from '../types';
 
