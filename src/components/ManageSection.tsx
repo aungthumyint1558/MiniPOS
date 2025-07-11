@@ -195,7 +195,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
           {/* Add New Menu Item Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
               <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-4 lg:p-6">
-                <h2 className="text-lg font-bold text-white">Add New Menu Item</h2>
+                <h2 className="text-xl font-bold text-white">Add New Menu Item</h2>
               </div>
               
               <div className="p-6 space-y-4">
@@ -298,7 +298,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
           {/* Menu Items Display Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-4 lg:p-6">
-                <h2 className="text-lg font-bold text-white">Menu Items</h2>
+                <h2 className="text-xl font-bold text-white">Menu Items</h2>
               </div>
               
               <div className="p-6">
@@ -442,7 +442,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
           {/* Add New Category Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
             <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-4 lg:p-6">
-              <h2 className="text-lg font-bold text-white">Add New Category</h2>
+              <h2 className="text-xl font-bold text-white">Add New Category</h2>
             </div>
             
             <div className="p-6 space-y-4">
@@ -471,7 +471,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
           {/* Categories List Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-4 lg:p-6">
-              <h2 className="text-lg font-bold text-white">Categories ({categories.length})</h2>
+              <h2 className="text-xl font-bold text-white">Categories ({categories.length})</h2>
             </div>
             
             <div className="p-6">

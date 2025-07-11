@@ -320,7 +320,7 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-4 lg:p-6 mb-4 lg:mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
             <div>
-              <h2 className="text-lg lg:text-2xl font-bold text-white">{t('reportsAnalytics')}</h2>
+              <h2 className="text-xl font-bold text-white">{t('reportsAnalytics')}</h2>
               <p className="text-blue-100 text-sm lg:text-base">Track your restaurant performance and analyze detailed order data</p>
               {selectedDate && (
                 <div className="mt-2 text-blue-100 text-sm">
@@ -381,7 +381,7 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
           {/* Order History Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200">
             <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-t-lg p-4 lg:p-6">
-              <h3 className="text-lg lg:text-xl font-bold text-white">{t('orderHistory')}</h3>
+              <h3 className="text-xl font-bold text-white">{t('orderHistory')}</h3>
               <p className="text-green-100 text-sm">View detailed order information with items breakdown</p>
             </div>
             
