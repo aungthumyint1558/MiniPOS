@@ -1,0 +1,543 @@
+import React, { useState, useRef } from 'react';
+import { Plus, Edit, Trash2, Save, X, ChevronDown, Upload, Image as ImageIcon } from 'lucide-react';
+import { MenuItem } from '../types';
+
+interface ManageSectionProps {
+  menuItems: MenuItem[];
+  categories: string[];
+  onUpdateMenuItem: (item: MenuItem) => void;
+  onDeleteMenuItem: (itemId: string) => void;
+  onAddMenuItem: (item: Omit<MenuItem, 'id'>) => void;
+  onAddCategory: (name: string) => void;
+  onDeleteCategory: (name: string) => void;
+}
+
+const ManageSection: React.FC<ManageSectionProps> = ({ 
+  menuItems, 
+  categories,
+  onUpdateMenuItem, 
+  onDeleteMenuItem, 
+  onAddMenuItem,
+  onAddCategory,
+  onDeleteCategory
+}) => {
+  const [activeTab, setActiveTab] = useState<'menu' | 'categories'>('menu');
+  const [newItem, setNewItem] = useState<Omit<MenuItem, 'id'>>({
+    name: '',
+    price: 0,
+    category: 'Appetizers',
+    description: '',
+    image: '',
+  });
+  const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState<MenuItem | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [newCategory, setNewCategory] = useState('');
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, isEdit: boolean = false) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check if file is JPEG
+    if (!file.type.includes('jpeg') && !file.type.includes('jpg')) {
+      alert('Please upload only JPEG images.');
+      return;
+    }
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        // Create canvas to resize image to fixed size (300x200)
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = 300;
+        canvas.height = 200;
+        
+        if (ctx) {
+          // Draw image with fixed dimensions
+          ctx.drawImage(img, 0, 0, 300, 200);
+          
+          // Convert to base64 JPEG with quality 0.8
+          const resizedImageData = canvas.toDataURL('image/jpeg', 0.8);
+          
+          if (isEdit && editingData) {
+            setEditingData({ ...editingData, image: resizedImageData });
+          } else {
+            setNewItem({ ...newItem, image: resizedImageData });
+          }
+        }
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAddItem = () => {
+    if (newItem.name && newItem.price > 0 && newItem.category) {
+      onAddMenuItem(newItem);
+      setNewItem({ name: '', price: 0, category: 'Appetizers', description: '', image: '' });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleEditItem = (item: MenuItem) => {
+    setEditingItem(item.id);
+    setEditingData({ ...item });
+  };
+
+  const handleSaveItem = () => {
+    if (editingData) {
+      onUpdateMenuItem(editingData);
+      setEditingItem(null);
+      setEditingData(null);
+      if (editFileInputRef.current) {
+        editFileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingItem(null);
+    setEditingData(null);
+    if (editFileInputRef.current) {
+      editFileInputRef.current.value = '';
+    }
+  };
+
+  const handleDeleteClick = (itemId: string) => {
+    setItemToDelete(itemId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (itemToDelete) {
+      onDeleteMenuItem(itemToDelete);
+      setItemToDelete(null);
+      setShowDeleteModal(false);
+    }
+  };
+
+  const handleAddCategory = () => {
+    if (newCategory.trim() && !categories.includes(newCategory.trim())) {
+      onAddCategory(newCategory.trim());
+      setNewCategory('');
+    }
+  };
+
+  const handleDeleteCategory = (categoryToDelete: string) => {
+    // Check if any menu items use this category
+    const itemsInCategory = menuItems.filter(item => item.category === categoryToDelete);
+    if (itemsInCategory.length > 0) {
+      alert(`Cannot delete category "${categoryToDelete}" because it contains ${itemsInCategory.length} menu item(s).`);
+      return;
+    }
+    
+    onDeleteCategory(categoryToDelete);
+  };
+
+  const groupedItems = categories.reduce((acc, category) => {
+    acc[category] = menuItems.filter(item => item.category === category);
+    return acc;
+  }, {} as Record<string, MenuItem[]>);
+
+  const getCategoryStats = () => {
+    return categories.map(category => ({
+      name: category,
+      count: menuItems.filter(item => item.category === category).length,
+      totalValue: menuItems
+        .filter(item => item.category === category)
+        .reduce((sum, item) => sum + item.price, 0)
+    }));
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Header Tabs */}
+      <div className="flex space-x-4 mb-6">
+        <button
+          onClick={() => setActiveTab('menu')}
+          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+            activeTab === 'menu'
+              ? 'bg-purple-600 text-white'
+              : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+          }`}
+        >
+          Menu Items
+        </button>
+        <button
+          onClick={() => setActiveTab('categories')}
+          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+            activeTab === 'categories'
+              ? 'bg-purple-600 text-white'
+              : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+          }`}
+        >
+          Categories
+        </button>
+      </div>
+
+      {activeTab === 'menu' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Add New Menu Item Section */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-md border border-gray-200">
+              <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-6">
+                <h2 className="text-xl font-bold text-white">Add New Menu Item</h2>
+              </div>
+              
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-purple-700 mb-2">Item Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter item name"
+                    value={newItem.name}
+                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-purple-700 mb-2">Price (MMK)</label>
+                  <input
+                    type="number"
+                    placeholder="Enter price"
+                    value={newItem.price || ''}
+                    onChange={(e) => setNewItem({ ...newItem, price: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-purple-700 mb-2">Category</label>
+                  <div className="relative">
+                    <select
+                      value={newItem.category}
+                      onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none bg-white"
+                    >
+                      {categories.map(category => (
+                        <option key={category} value={category}>{category}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-purple-700 mb-2">Description</label>
+                  <textarea
+                    placeholder="Enter description"
+                    value={newItem.description}
+                    onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-purple-700 mb-2">Image (JPEG only, 300x200px)</label>
+                  <div className="space-y-3">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".jpg,.jpeg"
+                      onChange={(e) => handleImageUpload(e)}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 transition-colors"
+                    >
+                      <Upload className="h-5 w-5 mr-2 text-gray-400" />
+                      <span className="text-gray-600">Upload JPEG Image</span>
+                    </button>
+                    {newItem.image && (
+                      <div className="relative">
+                        <img
+                          src={newItem.image}
+                          alt="Preview"
+                          className="w-full h-32 object-cover rounded-lg border border-gray-300"
+                        />
+                        <button
+                          onClick={() => setNewItem({ ...newItem, image: '' })}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <button
+                  onClick={handleAddItem}
+                  disabled={!newItem.name || newItem.price <= 0}
+                  className="w-full flex items-center justify-center px-6 py-3 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  Add Menu Item
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Menu Items Display Section */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-md border border-gray-200">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-6">
+                <h2 className="text-xl font-bold text-white">Menu Items</h2>
+              </div>
+              
+              <div className="p-6">
+                <div className="space-y-6 max-h-[600px] overflow-y-auto">
+                  {categories.map(category => (
+                    groupedItems[category]?.length > 0 && (
+                      <div key={category} className="space-y-3">
+                        <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
+                          {category}
+                        </h3>
+                        {groupedItems[category].map((item) => (
+                          <div key={item.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            {editingItem === item.id ? (
+                              <div className="space-y-3">
+                                <input
+                                  type="text"
+                                  value={editingData?.name || ''}
+                                  onChange={(e) => setEditingData(prev => prev ? { ...prev, name: e.target.value } : null)}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                <input
+                                  type="number"
+                                  value={editingData?.price || 0}
+                                  onChange={(e) => setEditingData(prev => prev ? { ...prev, price: parseFloat(e.target.value) || 0 } : null)}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                <textarea
+                                  value={editingData?.description || ''}
+                                  onChange={(e) => setEditingData(prev => prev ? { ...prev, description: e.target.value } : null)}
+                                  rows={2}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                />
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">Update Image</label>
+                                  <input
+                                    ref={editFileInputRef}
+                                    type="file"
+                                    accept=".jpg,.jpeg"
+                                    onChange={(e) => handleImageUpload(e, true)}
+                                    className="hidden"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => editFileInputRef.current?.click()}
+                                    className="flex items-center px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                                  >
+                                    <Upload className="h-4 w-4 mr-2" />
+                                    Upload New Image
+                                  </button>
+                                  {editingData?.image && (
+                                    <div className="mt-2 relative">
+                                      <img
+                                        src={editingData.image}
+                                        alt="Preview"
+                                        className="w-24 h-16 object-cover rounded border border-gray-300"
+                                      />
+                                      <button
+                                        onClick={() => setEditingData(prev => prev ? { ...prev, image: '' } : null)}
+                                        className="absolute -top-1 -right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={handleSaveItem}
+                                    className="flex items-center px-3 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors"
+                                  >
+                                    <Save className="h-4 w-4 mr-1" />
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={handleCancelEdit}
+                                    className="flex items-center px-3 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                                  >
+                                    <X className="h-4 w-4 mr-1" />
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div>
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex space-x-3">
+                                    {item.image && (
+                                      <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="w-16 h-12 object-cover rounded border border-gray-300 flex-shrink-0"
+                                      />
+                                    )}
+                                    <div className="flex-1">
+                                      <h4 className="font-semibold text-gray-900 text-lg">{item.name}</h4>
+                                      <p className="text-sm text-blue-600 font-medium">{item.category}</p>
+                                      <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                                    </div>
+                                  </div>
+                                  <div className="text-right ml-4">
+                                    <div className="text-xl font-bold text-green-600">MMK {item.price.toLocaleString()}</div>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex space-x-2 mt-3">
+                                  <button
+                                    onClick={() => handleEditItem(item)}
+                                    className="flex items-center px-3 py-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                                  >
+                                    <Edit className="h-4 w-4 mr-1" />
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteClick(item.id)}
+                                    className="flex items-center px-3 py-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-1" />
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  ))}
+                  
+                  {menuItems.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      No menu items found. Add your first menu item to get started.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Categories Management Section */
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Add New Category Section */}
+          <div className="bg-white rounded-lg shadow-md border border-gray-200">
+            <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-6">
+              <h2 className="text-xl font-bold text-white">Add New Category</h2>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-purple-700 mb-2">Category Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter category name"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+              
+              <button
+                onClick={handleAddCategory}
+                disabled={!newCategory.trim() || categories.includes(newCategory.trim())}
+                className="w-full flex items-center justify-center px-6 py-3 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Add Category
+              </button>
+            </div>
+          </div>
+
+          {/* Categories List Section */}
+          <div className="bg-white rounded-lg shadow-md border border-gray-200">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-6">
+              <h2 className="text-xl font-bold text-white">Categories ({categories.length})</h2>
+            </div>
+            
+            <div className="p-6">
+              <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                {getCategoryStats().map((category) => (
+                  <div key={category.name} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{category.name}</h4>
+                        <p className="text-sm text-gray-600">
+                          {category.count} items • Total value: MMK {category.totalValue.toLocaleString()}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteCategory(category.name)}
+                        disabled={category.count > 0}
+                        className="p-2 text-red-600 hover:text-red-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                        title={category.count > 0 ? 'Cannot delete category with items' : 'Delete category'}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && itemToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Menu Item</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete "{menuItems.find(item => item.id === itemToDelete)?.name}"? This action cannot be undone.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={confirmDelete}
+                className="flex items-center px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setItemToDelete(null);
+                }}
+                className="flex items-center px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ManageSection;
