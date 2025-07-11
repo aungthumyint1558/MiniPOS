@@ -237,6 +237,28 @@ function App() {
     setRoles([...roles, role]);
   };
 
+  const handleUpdateRole = (updatedRole: any) => {
+    setRoles(roles.map(role => 
+      role.id === updatedRole.id ? updatedRole : role
+    ));
+  };
+
+  const handleDeleteRole = (roleId: string) => {
+    const role = roles.find(r => r.id === roleId);
+    if (role && !role.isSystem) {
+      // Check if any users are using this role
+      const usersWithRole = users.filter(user => user.roleId === roleId);
+      if (usersWithRole.length > 0) {
+        alert(`Cannot delete role "${role.name}" because it is assigned to ${usersWithRole.length} user(s).`);
+        return;
+      }
+      
+      if (confirm(`Are you sure you want to delete role "${role.name}"?`)) {
+        setRoles(roles.filter(r => r.id !== roleId));
+      }
+    }
+  };
+
   // Check if user has access to the current tab
   const hasAccessToTab = (tabId: string) => {
     // Admin has access to everything
