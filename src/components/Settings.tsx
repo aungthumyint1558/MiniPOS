@@ -676,8 +676,16 @@ const Settings: React.FC<SettingsProps> = ({
                               <button
                                 onClick={() => openRoleModal(role)}
                                 className="p-1 text-blue-600 hover:text-blue-700 transition-colors"
+                                title="Edit Role"
                               >
                                 <Edit className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => onDeleteRole(role.id)}
+                                className="p-1 text-red-600 hover:text-red-700 transition-colors"
+                                title="Delete Role"
+                              >
+                                <Trash2 className="h-4 w-4" />
                               </button>
                             </div>
                           )}

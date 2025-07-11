@@ -244,19 +244,7 @@ function App() {
   };
 
   const handleDeleteRole = (roleId: string) => {
-    const role = roles.find(r => r.id === roleId);
-    if (role && !role.isSystem) {
-      // Check if any users are using this role
-      const usersWithRole = users.filter(user => user.roleId === roleId);
-      if (usersWithRole.length > 0) {
-        alert(`Cannot delete role "${role.name}" because it is assigned to ${usersWithRole.length} user(s).`);
-        return;
-      }
-      
-      if (confirm(`Are you sure you want to delete role "${role.name}"?`)) {
-        setRoles(roles.filter(r => r.id !== roleId));
-      }
-    }
+    setRoles(roles.filter(role => role.id !== roleId));
   };
 
   // Check if user has access to the current tab
@@ -334,6 +322,8 @@ function App() {
             onUpdateUser={handleUpdateUser}
             onDeleteUser={handleDeleteUser}
             onAddRole={handleAddRole}
+            onUpdateRole={handleUpdateRole}
+            onDeleteRole={handleDeleteRole}
             currentUserPermissions={currentUserPermissions}
           />
         );

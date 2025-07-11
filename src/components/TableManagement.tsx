@@ -215,7 +215,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg lg:text-2xl font-bold text-white">{t('tables')}</h2>
-              <p className="text-blue-100 text-sm lg:text-base">Manage your restaurant tables efficiently - track occupancy, reservations, and orders</p>
+              <p className="text-blue-100 text-sm lg:text-base">Manage your restaurant tables efficiently</p>
             </div>
             <div className="flex flex-wrap gap-2 lg:space-x-3 lg:gap-0">
               <button
