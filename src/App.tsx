@@ -69,7 +69,7 @@ function App() {
       name: 'Admin User',
       email: 'admin@restaurant.com',
       roleId: 'admin',
-      password: 'admin123',
+      password: 'admin',
       isActive: true
     },
     {
@@ -77,7 +77,7 @@ function App() {
       name: 'Cashier User',
       email: 'cashier@restaurant.com',
       roleId: 'cashier',
-      password: 'cashier123',
+      password: 'cashier',
       isActive: true
     },
     {
@@ -85,7 +85,7 @@ function App() {
       name: 'Waiter User',
       email: 'waiter@restaurant.com',
       roleId: 'waiter',
-      password: 'waiter123',
+      password: 'waiter',
       isActive: true
     }
   ]);
