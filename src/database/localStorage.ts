@@ -86,12 +86,12 @@ class LocalStorageDatabase {
     // Insert default menu items if not exists
     if (!localStorage.getItem(this.storageKeys.menuItems)) {
       const defaultMenuItems: MenuItem[] = [
-        { id: '1', name: 'Mohinga', price: 2500, category: 'Appetizers', description: 'Traditional fish noodle soup' },
-        { id: '2', name: 'Samosa Thoke', price: 2000, category: 'Appetizers', description: 'Samosa salad with chickpeas' },
-        { id: '3', name: 'Shan Noodles', price: 3500, category: 'Main Course', description: 'Traditional Shan style noodles' },
-        { id: '4', name: 'Tea Leaf Salad', price: 2800, category: 'Appetizers', description: 'Traditional Myanmar tea leaf salad' },
-        { id: '5', name: 'Coconut Rice', price: 1500, category: 'Main Course', description: 'Fragrant coconut rice with curry' },
-        { id: '6', name: 'Myanmar Beer', price: 1200, category: 'Beverage', description: 'Local Myanmar beer' },
+        { id: '1', name: 'မုန့်ဟင်းခါး / Mohinga', price: 2500, category: 'Appetizers', description: 'Traditional fish noodle soup / ရိုးရာငါးမုန့်ဟင်းခါး' },
+        { id: '2', name: 'ဆမူဆာသုပ် / Samosa Thoke', price: 2000, category: 'Appetizers', description: 'Samosa salad with chickpeas / ကုလားပဲနှင့်ဆမူဆာသုပ်' },
+        { id: '3', name: 'ရှမ်းခေါက်ဆွဲ / Shan Noodles', price: 3500, category: 'Main Course', description: 'Traditional Shan style noodles / ရိုးရာရှမ်းခေါက်ဆွဲ' },
+        { id: '4', name: 'လပက်သုပ် / Tea Leaf Salad', price: 2800, category: 'Appetizers', description: 'Traditional Myanmar tea leaf salad / ရိုးရာမြန်မာလပက်သုပ်' },
+        { id: '5', name: 'အုန်းထမင်း / Coconut Rice', price: 1500, category: 'Main Course', description: 'Fragrant coconut rice with curry / ဟင်းနှင့်အုန်းထမင်း' },
+        { id: '6', name: 'မြန်မာဘီယာ / Myanmar Beer', price: 1200, category: 'Beverage', description: 'Local Myanmar beer / ပြည်တွင်းဘီယာ' },
       ];
       localStorage.setItem(this.storageKeys.menuItems, JSON.stringify(defaultMenuItems));
     }

@@ -176,7 +176,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
           }`}
         >
-          Menu Items
+          {t('menuItems')}
         </button>
         <button
           onClick={() => setActiveTab('categories')}
@@ -186,7 +186,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
           }`}
         >
-          Categories
+          {t('categories')}
         </button>
       </div>
 
@@ -195,15 +195,15 @@ const ManageSection: React.FC<ManageSectionProps> = ({
           {/* Add New Menu Item Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
               <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-4 lg:p-6">
-                <h2 className="text-xl font-bold text-white">Add New Menu Item</h2>
+                <h2 className="text-xl font-bold text-white">{t('addNewMenuItem')}</h2>
               </div>
               
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-purple-700 mb-2">Item Name</label>
+                  <label className="block text-sm font-medium text-purple-700 mb-2">{t('itemName')}</label>
                   <input
                     type="text"
-                    placeholder="Enter item name"
+                    placeholder={t('enterItemName')}
                     value={newItem.name}
                     onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -211,10 +211,10 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-purple-700 mb-2">Price (MMK)</label>
+                  <label className="block text-sm font-medium text-purple-700 mb-2">{t('itemPrice')} (MMK)</label>
                   <input
                     type="number"
-                    placeholder="Enter price"
+                    placeholder={t('enterPrice')}
                     value={newItem.price || ''}
                     onChange={(e) => setNewItem({ ...newItem, price: parseFloat(e.target.value) || 0 })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -222,7 +222,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-purple-700 mb-2">Category</label>
+                  <label className="block text-sm font-medium text-purple-700 mb-2">{t('category')}</label>
                   <div className="relative">
                     <select
                       value={newItem.category}
@@ -238,9 +238,9 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-purple-700 mb-2">Description</label>
+                  <label className="block text-sm font-medium text-purple-700 mb-2">{t('description')}</label>
                   <textarea
-                    placeholder="Enter description"
+                    placeholder={t('enterDescription')}
                     value={newItem.description}
                     onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
                     rows={3}
@@ -249,7 +249,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-purple-700 mb-2">Image (JPEG only, 300x200px)</label>
+                  <label className="block text-sm font-medium text-purple-700 mb-2">{t('uploadImage')} (JPEG only, 300x200px)</label>
                   <div className="space-y-3">
                     <input
                       ref={fileInputRef}
@@ -264,7 +264,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                       className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 transition-colors"
                     >
                       <Upload className="h-5 w-5 mr-2 text-gray-400" />
-                      <span className="text-gray-600">Upload JPEG Image</span>
+                      <span className="text-gray-600">{t('uploadJPEGImage')}</span>
                     </button>
                     {newItem.image && (
                       <div className="relative">
@@ -290,7 +290,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                   className="w-full flex items-center justify-center px-6 py-3 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   <Plus className="h-5 w-5 mr-2" />
-                  Add Menu Item
+                  {t('addMenuItem')}
                 </button>
               </div>
           </div>
@@ -298,7 +298,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
           {/* Menu Items Display Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-4 lg:p-6">
-                <h2 className="text-xl font-bold text-white">Menu Items</h2>
+                <h2 className="text-xl font-bold text-white">{t('menuItems')}</h2>
               </div>
               
               <div className="p-6">
@@ -332,7 +332,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                 />
                                 <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">Update Image</label>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('updateImage')}</label>
                                   <input
                                     ref={editFileInputRef}
                                     type="file"
@@ -346,7 +346,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                                     className="flex items-center px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                                   >
                                     <Upload className="h-4 w-4 mr-2" />
-                                    Upload New Image
+                                    {t('uploadNewImage')}
                                   </button>
                                   {editingData?.image && (
                                     <div className="mt-2 relative">
@@ -370,14 +370,14 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                                     className="flex items-center px-3 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors"
                                   >
                                     <Save className="h-4 w-4 mr-1" />
-                                    Save
+                                    {t('save')}
                                   </button>
                                   <button
                                     onClick={handleCancelEdit}
                                     className="flex items-center px-3 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
                                   >
                                     <X className="h-4 w-4 mr-1" />
-                                    Cancel
+                                    {t('cancel')}
                                   </button>
                                 </div>
                               </div>
@@ -409,14 +409,14 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                                     className="flex items-center px-3 py-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
                                   >
                                     <Edit className="h-4 w-4 mr-1" />
-                                    Edit
+                                    {t('edit')}
                                   </button>
                                   <button
                                     onClick={() => handleDeleteClick(item.id)}
                                     className="flex items-center px-3 py-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
                                   >
                                     <Trash2 className="h-4 w-4 mr-1" />
-                                    Delete
+                                    {t('delete')}
                                   </button>
                                 </div>
                               </div>
@@ -429,7 +429,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                   
                   {menuItems.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
-                      No menu items found. Add your first menu item to get started.
+                      {t('noMenuItemsFound')}
                     </div>
                   )}
                 </div>
@@ -442,15 +442,15 @@ const ManageSection: React.FC<ManageSectionProps> = ({
           {/* Add New Category Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
             <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-4 lg:p-6">
-              <h2 className="text-xl font-bold text-white">Add New Category</h2>
+              <h2 className="text-xl font-bold text-white">{t('addNewCategory')}</h2>
             </div>
             
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-purple-700 mb-2">Category Name</label>
+                <label className="block text-sm font-medium text-purple-700 mb-2">{t('categoryName')}</label>
                 <input
                   type="text"
-                  placeholder="Enter category name"
+                  placeholder={t('enterCategoryName')}
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -463,7 +463,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                 className="w-full flex items-center justify-center px-6 py-3 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 <Plus className="h-5 w-5 mr-2" />
-                Add Category
+                {t('addCategory')}
               </button>
             </div>
           </div>
@@ -471,7 +471,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
           {/* Categories List Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-4 lg:p-6">
-              <h2 className="text-xl font-bold text-white">Categories ({categories.length})</h2>
+              <h2 className="text-xl font-bold text-white">{t('categories')} ({categories.length})</h2>
             </div>
             
             <div className="p-6">
@@ -482,14 +482,14 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                       <div>
                         <h4 className="font-semibold text-gray-900">{category.name}</h4>
                         <p className="text-sm text-gray-600">
-                          {category.count} items • Total value: MMK {category.totalValue.toLocaleString()}
+                          {category.count} {t('items')} • {t('totalValue')}: MMK {category.totalValue.toLocaleString()}
                         </p>
                       </div>
                       <button
                         onClick={() => handleDeleteCategory(category.name)}
                         disabled={category.count > 0}
                         className="p-2 text-red-600 hover:text-red-700 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-                        title={category.count > 0 ? 'Cannot delete category with items' : 'Delete category'}
+                        title={category.count > 0 ? t('cannotDeleteCategoryWithItems') : t('deleteCategory')}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -508,7 +508,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('deleteMenuItem')}</h3>
             <p className="text-gray-600 mb-6">
-              {t('confirmDeleteMenuItem')} "{menuItems.find(item => item.id === itemToDelete)?.name}"? {t('actionCannotBeUndone')}
+              {t('confirmDeleteMenuItem')} "{menuItems.find(item => item.id === itemToDelete)?.name}"? {t('thisActionCannotBeUndone')}
             </p>
             <div className="flex space-x-3">
               <button
