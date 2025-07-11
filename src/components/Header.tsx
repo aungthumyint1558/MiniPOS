@@ -1,17 +1,17 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { User, LogOut, Calendar, Settings, Menu, X } from 'lucide-react';
+import { User, LogOut, Calendar, Menu, X } from 'lucide-react';
 import { DatabaseSettings } from '../database/localStorage';
 
 interface HeaderProps {
   currentUser: string;
+  currentUserRole: string;
   currentDate: string;
   onLogout: () => void;
-  onSettings: () => void;
   settings: DatabaseSettings | null;
 }
 
-const Header: React.FC<HeaderProps> = ({ currentUser, currentDate, onLogout, onSettings, settings }) => {
+const Header: React.FC<HeaderProps> = ({ currentUser, currentUserRole, currentDate, onLogout, settings }) => {
   const { t } = useLanguage();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
@@ -48,18 +48,10 @@ const Header: React.FC<HeaderProps> = ({ currentUser, currentDate, onLogout, onS
             <div className="flex items-center space-x-3">
               <div className="text-right hidden lg:block">
                 <div className="text-sm font-medium text-gray-900">{currentUser}</div>
-                <div className="text-xs text-gray-500">Admin</div>
+                <div className="text-xs text-gray-500">{t(currentUserRole.toLowerCase())}</div>
               </div>
               <User className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
             </div>
-            
-            <button
-              onClick={onSettings}
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-              title={t('settings')}
-            >
-              <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
-            </button>
             
             <button
               onClick={onLogout}
@@ -94,7 +86,7 @@ const Header: React.FC<HeaderProps> = ({ currentUser, currentDate, onLogout, onS
                   <User className="h-6 w-6 text-gray-400" />
                   <div>
                     <div className="text-sm font-medium text-gray-900">{currentUser}</div>
-                    <div className="text-xs text-gray-500">Admin</div>
+                    <div className="text-xs text-gray-500">{t(currentUserRole.toLowerCase())}</div>
                   </div>
                 </div>
               </div>
@@ -105,17 +97,6 @@ const Header: React.FC<HeaderProps> = ({ currentUser, currentDate, onLogout, onS
               </div>
               
               <div className="flex space-x-4 pt-2">
-                <button
-                  onClick={() => {
-                    onSettings();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  {t('settings')}
-                </button>
-                
                 <button
                   onClick={() => {
                     onLogout();
