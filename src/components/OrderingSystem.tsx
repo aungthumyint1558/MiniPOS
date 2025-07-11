@@ -306,7 +306,6 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
                       </span>
                     </div>
                     )}
-                    )}
                     
                     {/* Tax */}
                     <div className="flex items-center justify-between mb-3">
