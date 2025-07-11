@@ -23,13 +23,13 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({ activeTab, onTabChange,
     return allTabs.filter(tab => {
       switch (tab.id) {
         case 'pos':
-          return userPermissions.includes('pos_access');
+          return true; // POS should always be accessible
         case 'reports':
           return userPermissions.includes('reports_view');
         case 'manage':
           return userPermissions.includes('menu_view');
         case 'settings':
-          return userPermissions.includes('settings_view');
+          return true; // Settings should always be accessible
         default:
           return false;
       }

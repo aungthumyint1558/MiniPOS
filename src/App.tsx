@@ -235,13 +235,13 @@ function App() {
   const hasAccessToTab = (tabId: string) => {
     switch (tabId) {
       case 'pos':
-        return hasPermission('pos_access');
+        return true; // POS should always be accessible
       case 'reports':
         return hasPermission('reports_view');
       case 'manage':
         return hasPermission('menu_view');
       case 'settings':
-        return hasPermission('settings_view');
+        return true; // Settings should always be accessible
       default:
         return false;
     }
