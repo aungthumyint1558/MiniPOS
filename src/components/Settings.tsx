@@ -279,14 +279,36 @@ const Settings: React.FC<SettingsProps> = ({
         const body = encodeURIComponent('That is test email from POS software.');
         const mailtoLink = `mailto:${emailSettings.testEmailRecipient}?subject=${subject}&body=${body}`;
         
-        if (confirm('Direct email sending is not available. Would you like to open your default email client to send the test email manually?')) {
-          window.open(mailtoLink);
-          setEmailTestStatus('success');
-          setTimeout(() => setEmailTestStatus('idle'), 3000);
+        // Show instructions instead of automatically opening email client
+        setEmailTestStatus('error');
+        setTimeout(() => setEmailTestStatus('idle'), 3000);
+        
+        const userChoice = confirm(
+          'Direct email sending is not available in browser environment.\n\n' +
+          'To test email functionality:\n' +
+          '1. Click "OK" to copy email details\n' +
+          '2. Manually send an email with:\n' +
+          '   - To: ' + emailSettings.testEmailRecipient + '\n' +
+          '   - Subject: Test Email\n' +
+          '   - Body: That is test email from POS software.\n\n' +
+          'Or click "Cancel" to configure a backend email service.'
+        );
+        
+        if (userChoice) {
+          // Copy email details to clipboard if possible
+          const emailDetails = `To: ${emailSettings.testEmailRecipient}\nSubject: Test Email\nBody: That is test email from POS software.`;
+          
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(emailDetails).then(() => {
+              alert('Email details copied to clipboard! You can now paste them into your email client.');
+            }).catch(() => {
+              alert('Email details:\n\n' + emailDetails + '\n\nPlease copy these details manually to your email client.');
+            });
+          } else {
+            alert('Email details:\n\n' + emailDetails + '\n\nPlease copy these details manually to your email client.');
+          }
         } else {
-          setEmailTestStatus('error');
-          setTimeout(() => setEmailTestStatus('idle'), 3000);
-          alert('Test email cancelled. Please check your email settings and try again.');
+          alert('To enable automatic email sending, please set up a backend email service or use EmailJS integration.');
         }
       }
     } catch (error) {
