@@ -193,8 +193,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
       {activeTab === 'menu' ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Add New Menu Item Section */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-md border border-gray-200">
+          <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
               <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-6">
                 <h2 className="text-xl font-bold text-white">Add New Menu Item</h2>
               </div>
@@ -294,12 +293,10 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                   Add Menu Item
                 </button>
               </div>
-            </div>
           </div>
 
           {/* Menu Items Display Section */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-md border border-gray-200">
+          <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-6">
                 <h2 className="text-xl font-bold text-white">Menu Items</h2>
               </div>
@@ -437,14 +434,13 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                   )}
                 </div>
               </div>
-            </div>
           </div>
         </div>
       ) : (
         /* Categories Management Section */
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Add New Category Section */}
-          <div className="bg-white rounded-lg shadow-md border border-gray-200">
+          <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
             <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-6">
               <h2 className="text-xl font-bold text-white">Add New Category</h2>
             </div>
@@ -473,7 +469,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
           </div>
 
           {/* Categories List Section */}
-          <div className="bg-white rounded-lg shadow-md border border-gray-200">
+          <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-6">
               <h2 className="text-xl font-bold text-white">Categories ({categories.length})</h2>
             </div>

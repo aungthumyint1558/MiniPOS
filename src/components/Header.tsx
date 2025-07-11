@@ -6,12 +6,11 @@ import { DatabaseSettings } from '../database/localStorage';
 interface HeaderProps {
   currentUser: string;
   currentUserRole: string;
-  currentDate: string;
   onLogout: () => void;
   settings: DatabaseSettings | null;
 }
 
-const Header: React.FC<HeaderProps> = ({ currentUser, currentUserRole, currentDate, onLogout, settings }) => {
+const Header: React.FC<HeaderProps> = ({ currentUser, currentUserRole, onLogout, settings }) => {
   const { t } = useLanguage();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
@@ -32,19 +31,14 @@ const Header: React.FC<HeaderProps> = ({ currentUser, currentUserRole, currentDa
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {settings?.restaurantName || t('restaurantPOS')}
               </h1>
-              <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">
-                {t('professionalPOS')}
+              <p className="text-xs sm:text-sm text-gray-500">
+                {settings?.description || t('professionalPOS')}
               </p>
             </div>
           </div>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            <div className="flex items-center text-sm text-gray-500">
-              <Calendar className="h-4 w-4 mr-1" />
-              <span className="hidden lg:inline">{currentDate}</span>
-            </div>
-            
             <div className="flex items-center space-x-3">
               <div className="text-right hidden lg:block">
                 <div className="text-sm font-medium text-gray-900">{currentUser}</div>
@@ -89,11 +83,6 @@ const Header: React.FC<HeaderProps> = ({ currentUser, currentUserRole, currentDa
                     <div className="text-xs text-gray-500">{t(currentUserRole.toLowerCase())}</div>
                   </div>
                 </div>
-              </div>
-              
-              <div className="flex items-center text-sm text-gray-500">
-                <Calendar className="h-4 w-4 mr-2" />
-                {currentDate}
               </div>
               
               <div className="flex space-x-4 pt-2">

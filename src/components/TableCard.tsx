@@ -129,7 +129,12 @@ const TableCard: React.FC<TableCardProps> = ({
         {/* View Order Button */}
         <button
           onClick={(e) => handleActionClick(e, () => onViewOrder(table.id))}
-          className="w-full flex items-center justify-center px-1.5 sm:px-2 lg:px-3 py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm font-medium text-purple-700 bg-purple-100 rounded-md hover:bg-purple-200 transition-colors"
+          disabled={table.orderItems && table.orderItems.length > 0}
+          className={`flex-1 px-1.5 sm:px-2 lg:px-3 py-1 sm:py-1.5 lg:py-2 text-xs sm:text-sm font-medium text-white rounded-md transition-colors ${
+            table.orderItems && table.orderItems.length > 0
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-emerald-600 hover:bg-emerald-700'
+          }`}
         >
           <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
           View Order

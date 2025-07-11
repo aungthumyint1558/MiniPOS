@@ -4,6 +4,7 @@ import { Table, MenuItem, OrderItem } from '../types';
 export interface DatabaseSettings {
   id: number;
   restaurantName: string;
+  description?: string;
   logo?: string;
   currency: string;
   taxRate: number;
@@ -48,10 +49,11 @@ class LocalStorageDatabase {
       const defaultSettings: DatabaseSettings = {
         id: 1,
         restaurantName: 'Restaurant POS',
+        description: 'Professional Point of Sale System',
         currency: 'MMK',
         taxRate: 8.5,
-        serviceCharge: 10,
-        serviceChargeEnabled: true,
+        serviceCharge: 0,
+        serviceChargeEnabled: false,
         notifications: true,
         autoBackup: true,
         printReceipts: true,

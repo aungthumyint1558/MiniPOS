@@ -3,6 +3,7 @@ import { useTheme } from './contexts/ThemeContext';
 import { useLanguage } from './contexts/LanguageContext';
 import { useDatabase } from './hooks/useDatabase';
 import { generateOrderId } from './utils/orderIdGenerator';
+import Login from './components/Login';
 import Header from './components/Header';
 import NavigationTabs from './components/NavigationTabs';
 import TableManagement from './components/TableManagement';
@@ -15,14 +16,14 @@ function App() {
   const { theme } = useTheme();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('pos');
-  const [currentUser] = useState('Admin User');
-  const [currentUserRole] = useState('Admin');
-  const [currentDate] = useState(new Date().toLocaleDateString('en-US', { 
-    weekday: 'short', 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  }));
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState('');
+  const [currentUserRole, setCurrentUserRole] = useState('');
+  const [users] = useState([
+    { name: 'Admin User', email: 'admin@restaurant.com', role: 'Admin', password: 'admin' },
+    { name: 'Cashier User', email: 'cashier@restaurant.com', role: 'Cashier', password: 'cashier123' },
+    { name: 'Waiter User', email: 'waiter@restaurant.com', role: 'Waiter', password: 'waiter123' }
+  ]);
 
   const {
     settings,
@@ -110,10 +111,17 @@ function App() {
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
-      console.log('Logging out...');
-      // In a real app, this would clear authentication and redirect
-      alert('Logout functionality would be implemented here');
+      setIsLoggedIn(false);
+      setCurrentUser('');
+      setCurrentUserRole('');
+      setActiveTab('pos');
     }
+  };
+
+  const handleLogin = (username: string, role: string) => {
+    setCurrentUser(username);
+    setCurrentUserRole(role);
+    setIsLoggedIn(true);
   };
 
   // Check if user has access to the current tab
@@ -136,6 +144,11 @@ function App() {
       setActiveTab('pos');
     }
   }, [activeTab, currentUserRole]);
+
+  // Show login page if not logged in
+  if (!isLoggedIn) {
+    return <Login onLogin={handleLogin} users={users} />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -192,7 +205,6 @@ function App() {
       <Header
         currentUser={currentUser}
         currentUserRole={currentUserRole}
-        currentDate={currentDate}
         onLogout={handleLogout}
         settings={settings}
       />

@@ -44,11 +44,12 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
   const [localSettings, setLocalSettings] = useState(settings || {
     id: 1,
     restaurantName: t('restaurantPOS'),
+    description: t('professionalPOS'),
     logo: '',
     currency: 'MMK',
     taxRate: 8.5,
-    serviceCharge: 10,
-    serviceChargeEnabled: true,
+    serviceCharge: 0,
+    serviceChargeEnabled: false,
     theme: 'light' as 'light' | 'dark',
     language: 'en',
   });
@@ -58,8 +59,8 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     if (!file) return;
 
     // Check file type
-    if (!file.type.includes('jpeg') && !file.type.includes('jpg') && !file.type.includes('png')) {
-      alert('Please upload only JPG or PNG images.');
+    if (!file.type.includes('jpeg') && !file.type.includes('jpg') && !file.type.includes('png') && !file.type.includes('svg')) {
+      alert('Please upload only JPG, PNG, or SVG images.');
       return;
     }
 
@@ -78,12 +79,12 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
         const ctx = canvas.getContext('2d');
         
         // Set fixed size for logo
-        canvas.width = 100;
-        canvas.height = 100;
+        canvas.width = 120;
+        canvas.height = 80;
         
         if (ctx) {
           // Draw image with fixed dimensions
-          ctx.drawImage(img, 0, 0, 100, 100);
+          ctx.drawImage(img, 0, 0, 120, 80);
           
           // Convert to base64
           const resizedImageData = canvas.toDataURL('image/jpeg', 0.8);
@@ -120,12 +121,12 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
         const ctx = canvas.getContext('2d');
         
         // Set fixed size for avatar
-        canvas.width = 80;
-        canvas.height = 80;
+        canvas.width = 100;
+        canvas.height = 100;
         
         if (ctx) {
           // Draw image with fixed dimensions
-          ctx.drawImage(img, 0, 0, 80, 80);
+          ctx.drawImage(img, 0, 0, 100, 100);
           
           // Convert to base64
           const resizedImageData = canvas.toDataURL('image/jpeg', 0.8);
@@ -374,7 +375,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
               <div className="space-y-3">
                 <input
                   type="file"
-                  accept=".jpg,.jpeg,.png"
+                  accept=".jpg,.jpeg,.png,.svg"
                   onChange={handleLogoUpload}
                   className="hidden"
                   id="logo-upload"
@@ -384,14 +385,14 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                   className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors cursor-pointer"
                 >
                   <ImageIcon className="h-5 w-5 mr-2 text-gray-400" />
-                  <span className="text-gray-600">Upload Logo (JPG/PNG, max 2MB)</span>
+                  <span className="text-gray-600">Upload Logo (JPG/PNG/SVG, 120x80px, max 2MB)</span>
                 </label>
                 {localSettings.logo && (
                   <div className="flex items-center space-x-3">
                     <img
                       src={localSettings.logo}
                       alt="Logo Preview"
-                      className="w-16 h-16 object-cover rounded-lg border border-gray-300"
+                      className="w-20 h-14 object-cover rounded-lg border border-gray-300"
                     />
                     <button
                       onClick={() => setLocalSettings({ ...localSettings, logo: '' })}
@@ -410,6 +411,16 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                 type="text"
                 value={localSettings.restaurantName}
                 onChange={(e) => setLocalSettings({ ...localSettings, restaurantName: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('description')}</label>
+              <input
+                type="text"
+                value={localSettings.description || ''}
+                onChange={(e) => setLocalSettings({ ...localSettings, description: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -643,10 +654,10 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                       />
                       <label
                         htmlFor="user-avatar-upload"
-                        className="flex items-center px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+                        className="flex items-center px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
                       >
                         <ImageIcon className="h-4 w-4 mr-2" />
-                        {t('uploadAvatar')}
+                        Upload Avatar (JPG/PNG, 100x100px)
                       </label>
                     </div>
                   </div>
