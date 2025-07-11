@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Plus, Edit, Trash2, Save, X, ChevronDown, Upload, Image as ImageIcon } from 'lucide-react';
 import { MenuItem } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ManageSectionProps {
   menuItems: MenuItem[];
@@ -21,6 +22,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
   onAddCategory,
   onDeleteCategory
 }) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'menu' | 'categories'>('menu');
   const [newItem, setNewItem] = useState<Omit<MenuItem, 'id'>>({
     name: '',
