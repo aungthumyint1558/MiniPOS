@@ -48,6 +48,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     currency: 'MMK',
     taxRate: 8.5,
     serviceCharge: 10,
+    serviceChargeEnabled: true,
     theme: 'light' as 'light' | 'dark',
     language: 'en',
   });
@@ -447,6 +448,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                 onChange={(e) => setLocalSettings({ ...localSettings, serviceCharge: parseFloat(e.target.value) })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+            
+            <div>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={localSettings.serviceChargeEnabled}
+                  onChange={(e) => setLocalSettings({ ...localSettings, serviceChargeEnabled: e.target.checked })}
+                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium text-gray-700">{t('enableServiceCharge')}</span>
+              </label>
             </div>
           </div>
         </div>

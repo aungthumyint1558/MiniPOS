@@ -14,6 +14,7 @@ interface TableManagementProps {
   onDeleteTable: (tableId: string) => void;
   onAddTable: () => void;
   serviceChargeRate: number;
+  serviceChargeEnabled: boolean;
   taxRate: number;
   onCompleteOrder: (tableId: string, orderItems: OrderItem[], total: number) => void;
   settings: DatabaseSettings | null;
@@ -26,6 +27,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
   onDeleteTable, 
   onAddTable,
   serviceChargeRate,
+  serviceChargeEnabled,
   taxRate,
   onCompleteOrder,
   settings
@@ -184,6 +186,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
         onSaveOrder={handleSaveOrder}
         onBack={handleBackFromOrdering}
         serviceChargeRate={settings?.serviceCharge || 10}
+        serviceChargeEnabled={settings?.serviceChargeEnabled ?? true}
         taxRate={settings?.taxRate || 8.5}
       />
     );

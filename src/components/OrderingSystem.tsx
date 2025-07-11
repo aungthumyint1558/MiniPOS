@@ -9,6 +9,7 @@ interface OrderingSystemProps {
   onSaveOrder: (tableId: string, orderItems: OrderItem[], total: number) => void;
   onBack: () => void;
   serviceChargeRate: number;
+  serviceChargeEnabled: boolean;
   taxRate: number;
 }
 
@@ -19,6 +20,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
   onSaveOrder,
   onBack,
   serviceChargeRate,
+  serviceChargeEnabled,
   taxRate
 }) => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>(table.orderItems || []);
@@ -73,6 +75,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
   };
 
   const getServiceCharge = () => {
+    if (!serviceChargeEnabled) return 0;
     return (getSubtotal() * serviceChargeRate) / 100;
   };
 
@@ -295,12 +298,14 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
                     </div>
                     
                     {/* Service Charge */}
+                    {serviceChargeEnabled && (
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm lg:text-base text-gray-700">Service Charge ({serviceChargeRate}%):</span>
                       <span className="text-sm lg:text-base font-semibold text-gray-900">
                         MMK {getServiceCharge().toLocaleString()}
                       </span>
                     </div>
+                    )}
                     
                     {/* Tax */}
                     <div className="flex items-center justify-between mb-3">

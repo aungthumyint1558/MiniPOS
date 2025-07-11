@@ -8,6 +8,7 @@ export interface DatabaseSettings {
   currency: string;
   taxRate: number;
   serviceCharge: number;
+  serviceChargeEnabled: boolean;
   theme: 'light' | 'dark';
   language: string;
 }
@@ -50,6 +51,7 @@ class LocalStorageDatabase {
         currency: 'MMK',
         taxRate: 8.5,
         serviceCharge: 10,
+        serviceChargeEnabled: true,
         notifications: true,
         autoBackup: true,
         printReceipts: true,
