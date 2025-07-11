@@ -3,6 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { Save, Upload, Download, Trash2, Plus, Edit, X, User, Shield, Mail, Send, Check } from 'lucide-react';
 import { DatabaseSettings } from '../database/localStorage';
+import { sendEmailViaService, validateEmailConfig } from '../utils/emailService';
 
 interface SettingsProps {
   settings: DatabaseSettings | null;
@@ -240,24 +241,58 @@ const Settings: React.FC<SettingsProps> = ({
       return;
     }
 
+    if (!emailSettings.smtpServer || !emailSettings.smtpUsername || !emailSettings.smtpPassword) {
+      alert('Please configure SMTP settings first.');
+      return;
+    }
     setEmailTestStatus('sending');
     
-    // Simulate email sending (replace with actual email service integration)
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Use EmailJS or similar service for client-side email sending
+      const emailData = {
+        to_email: emailSettings.testEmailRecipient,
+        from_name: emailSettings.fromName || 'POS System',
+        from_email: emailSettings.fromEmail || emailSettings.smtpUsername,
+        subject: 'Test Email',
+        message: 'That is test email from POS software.',
+        smtp_server: emailSettings.smtpServer,
+        smtp_port: emailSettings.smtpPort,
+        smtp_username: emailSettings.smtpUsername,
+        smtp_password: emailSettings.smtpPassword,
+        enable_tls: emailSettings.enableTLS
+      };
+
+      // Since we can't directly send SMTP emails from browser, we'll use a workaround
+      // Option 1: Use EmailJS (requires setup)
+      // Option 2: Use mailto: link as fallback
+      // Option 3: Show instructions for manual testing
       
-      // This is where you would integrate with your actual email service
-      console.log('Email settings:', emailSettings);
-      console.log('Sending test email to:', emailSettings.testEmailRecipient);
+      const success = await sendEmailViaService(emailData);
       
-      setEmailTestStatus('success');
-      setTimeout(() => setEmailTestStatus('idle'), 3000);
-      
-      alert(`Test email sent successfully to ${emailSettings.testEmailRecipient}!\n\nNote: This is a simulation. To enable actual email sending, integrate with your email service provider (Gmail, Outlook, etc.).`);
+      if (success) {
+        setEmailTestStatus('success');
+        setTimeout(() => setEmailTestStatus('idle'), 3000);
+        alert(`Test email sent successfully to ${emailSettings.testEmailRecipient}!`);
+      } else {
+        throw new Error('Failed to send email');
+      }
     } catch (error) {
+      console.error('Email sending error:', error);
       setEmailTestStatus('error');
       setTimeout(() => setEmailTestStatus('idle'), 3000);
-      alert('Failed to send test email. Please check your email settings.');
+      
+      // Fallback: Open mailto link
+      const subject = encodeURIComponent('Test Email');
+      const body = encodeURIComponent('That is test email from POS software.');
+      const mailtoLink = `mailto:${emailSettings.testEmailRecipient}?subject=${subject}&body=${body}`;
+      
+      if (confirm('Direct email sending failed. Would you like to open your default email client to send the test email manually?')) {
+        window.open(mailtoLink);
+        setEmailTestStatus('success');
+        setTimeout(() => setEmailTestStatus('idle'), 3000);
+      } else {
+        alert('Failed to send test email. Please check your email settings and try again.');
+      }
     }
   };
 
@@ -725,6 +760,13 @@ const Settings: React.FC<SettingsProps> = ({
 
                 <div className="border-t border-gray-200 pt-6">
                   <h4 className="text-md font-semibold text-gray-900 mb-4">{t('testEmail')}</h4>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Send a test email to verify your SMTP configuration. The test email will have:
+                    <br />
+                    <strong>Subject:</strong> Test Email
+                    <br />
+                    <strong>Body:</strong> That is test email from POS software.
+                  </p>
                   <div className="flex space-x-4">
                     <div className="flex-1">
                       <input
@@ -780,6 +822,22 @@ const Settings: React.FC<SettingsProps> = ({
                   >
                     <Save className="h-4 w-4 mr-2" />
                     {t('saveEmailSettings')}
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Load saved email settings
+                      const saved = localStorage.getItem('email_settings');
+                      if (saved) {
+                        setEmailSettings(JSON.parse(saved));
+                        alert('Email settings loaded successfully!');
+                      } else {
+                        alert('No saved email settings found.');
+                      }
+                    }}
+                    className="flex items-center px-6 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Load Settings
                   </button>
                 </div>
               </div>
