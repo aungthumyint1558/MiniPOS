@@ -274,25 +274,26 @@ const Settings: React.FC<SettingsProps> = ({
         setTimeout(() => setEmailTestStatus('idle'), 3000);
         alert(`Test email sent successfully to ${emailSettings.testEmailRecipient}!`);
       } else {
-        throw new Error('Failed to send email');
+        // Fallback: Open mailto link
+        const subject = encodeURIComponent('Test Email');
+        const body = encodeURIComponent('That is test email from POS software.');
+        const mailtoLink = `mailto:${emailSettings.testEmailRecipient}?subject=${subject}&body=${body}`;
+        
+        if (confirm('Direct email sending is not available. Would you like to open your default email client to send the test email manually?')) {
+          window.open(mailtoLink);
+          setEmailTestStatus('success');
+          setTimeout(() => setEmailTestStatus('idle'), 3000);
+        } else {
+          setEmailTestStatus('error');
+          setTimeout(() => setEmailTestStatus('idle'), 3000);
+          alert('Test email cancelled. Please check your email settings and try again.');
+        }
       }
     } catch (error) {
       console.error('Email sending error:', error);
       setEmailTestStatus('error');
       setTimeout(() => setEmailTestStatus('idle'), 3000);
-      
-      // Fallback: Open mailto link
-      const subject = encodeURIComponent('Test Email');
-      const body = encodeURIComponent('That is test email from POS software.');
-      const mailtoLink = `mailto:${emailSettings.testEmailRecipient}?subject=${subject}&body=${body}`;
-      
-      if (confirm('Direct email sending failed. Would you like to open your default email client to send the test email manually?')) {
-        window.open(mailtoLink);
-        setEmailTestStatus('success');
-        setTimeout(() => setEmailTestStatus('idle'), 3000);
-      } else {
-        alert('Failed to send test email. Please check your email settings and try again.');
-      }
+      alert('Failed to send test email. Please check your email settings and try again.');
     }
   };
 
