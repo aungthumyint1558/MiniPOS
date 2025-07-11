@@ -213,7 +213,10 @@ const TableManagement: React.FC<TableManagementProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-4 lg:p-6 mb-4 lg:mb-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg lg:text-2xl font-bold text-white">{t('tables')}</h2>
+            <div>
+              <h2 className="text-lg lg:text-2xl font-bold text-white">{t('tables')}</h2>
+              <p className="text-blue-100 text-sm lg:text-base">Manage your restaurant tables efficiently - track occupancy, reservations, and orders</p>
+            </div>
             <div className="flex flex-wrap gap-2 lg:space-x-3 lg:gap-0">
               <button
                 onClick={() => selectedTable && handleStartOrder(selectedTable)}

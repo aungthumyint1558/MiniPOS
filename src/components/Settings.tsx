@@ -18,7 +18,8 @@ import {
   X,
   Shield,
   Users,
-  Key
+  Key,
+  Mail
 } from 'lucide-react';
 import { DatabaseSettings } from '../database/localStorage';
 
@@ -61,6 +62,18 @@ const Settings: React.FC<SettingsProps> = ({
   const [activeSection, setActiveSection] = useState<'general' | 'users' | 'roles'>('general');
   const [localSettings, setLocalSettings] = useState(settings || {});
   const logoInputRef = useRef<HTMLInputElement>(null);
+  
+  // Email Integration States
+  const [emailSettings, setEmailSettings] = useState({
+    smtpServer: 'smtp.office365.com',
+    smtpPort: '587',
+    smtpUsername: '',
+    smtpPassword: '',
+    fromEmail: '',
+    fromName: settings?.restaurantName || 'Restaurant POS',
+    enableTLS: true,
+    testEmail: ''
+  });
 
   // User Management States
   const [showUserModal, setShowUserModal] = useState(false);
@@ -307,9 +320,35 @@ const Settings: React.FC<SettingsProps> = ({
 
   const sections = [
     { id: 'general', label: 'General Settings', icon: SettingsIcon },
+    { id: 'email', label: 'Email Integration', icon: Mail },
     ...(hasPermission('user_manage') ? [{ id: 'users', label: 'User Management', icon: Users }] : []),
     ...(hasPermission('role_manage') ? [{ id: 'roles', label: 'Roles & Permissions', icon: Shield }] : [])
   ];
+
+  // Email Integration Functions
+  const handleTestEmail = () => {
+    if (!emailSettings.testEmail) {
+      alert('Please enter a test email address');
+      return;
+    }
+    
+    // This would integrate with your backend email service
+    alert(`Test email would be sent to: ${emailSettings.testEmail}\n\nNote: Email integration requires backend setup with Office365 SMTP configuration.`);
+  };
+
+  const handleSaveEmailSettings = () => {
+    // Save email settings to localStorage or backend
+    localStorage.setItem('pos_email_settings', JSON.stringify(emailSettings));
+    alert('Email settings saved successfully!');
+  };
+
+  // Load email settings on component mount
+  React.useEffect(() => {
+    const savedEmailSettings = localStorage.getItem('pos_email_settings');
+    if (savedEmailSettings) {
+      setEmailSettings(JSON.parse(savedEmailSettings));
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
