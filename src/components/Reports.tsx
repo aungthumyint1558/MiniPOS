@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Calendar, Trash2, Download, BarChart3 } from 'lucide-react';
+import { Calendar, Trash2, Download, BarChart3, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Table } from '../types';
