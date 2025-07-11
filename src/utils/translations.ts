@@ -127,6 +127,16 @@ export const translations = {
     admin: 'Admin',
     cashier: 'Cashier',
     waiter: 'Waiter',
+    manager: 'Manager',
+    setPassword: 'Set Password',
+    confirmPassword: 'Confirm Password',
+    permissions: 'Permissions',
+    rolesPermissions: 'Roles & Permissions',
+    addRole: 'Add Role',
+    editRole: 'Edit Role',
+    updateRole: 'Update Role',
+    roleName: 'Role Name',
+    assignPermissions: 'Assign Permissions',
   },
   
   my: {
@@ -257,6 +267,16 @@ export const translations = {
     admin: 'စီမံခန့်ခွဲသူ',
     cashier: 'ငွေကောင်တာ',
     waiter: 'စားပွဲထိုး',
+    manager: 'မန်နေဂျာ',
+    setPassword: 'စကားဝှက်သတ်မှတ်ရန်',
+    confirmPassword: 'စကားဝှက်အတည်ပြုရန်',
+    permissions: 'ခွင့်ပြုချက်များ',
+    rolesPermissions: 'အခန်းကဏ္ဍနှင့် ခွင့်ပြုချက်များ',
+    addRole: 'အခန်းကဏ္ဍထည့်ရန်',
+    editRole: 'အခန်းကဏ္ဍပြင်ရန်',
+    updateRole: 'အခန်းကဏ္ဍပြင်ဆင်ရန်',
+    roleName: 'အခန်းကဏ္ဍအမည်',
+    assignPermissions: 'ခွင့်ပြုချက်များသတ်မှတ်ရန်',
   }
 };
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTheme } from './contexts/ThemeContext';
 import { useLanguage } from './contexts/LanguageContext';
 import { useDatabase } from './hooks/useDatabase';
-import { generateOrderId } from './utils/orderIdGenerator';
+import { generateOrderId, generateTableOrderId } from './utils/orderIdGenerator';
 import Login from './components/Login';
 import Header from './components/Header';
 import NavigationTabs from './components/NavigationTabs';
@@ -81,7 +81,7 @@ function App() {
     if (table) {
       // Add to order history
       const orderData = {
-        id: generateOrderId(),
+        id: table.orderId || generateTableOrderId(table.number),
         tableNumber: table.number,
         customerName: table.customer || 'Walk-in Customer',
         orderDate: new Date().toISOString().split('T')[0],

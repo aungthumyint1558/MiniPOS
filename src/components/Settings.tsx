@@ -1,17 +1,31 @@
 import React, { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Save, Bell, Shield, Globe, Printer, Download, Upload, Database, ImageIcon, Users, Plus, Edit, Trash2, X, User } from 'lucide-react';
+import { Save, Bell, Shield, Globe, Printer, Download, Upload, Database, ImageIcon, Users, Plus, Edit, Trash2, X, User, Eye, EyeOff, Key } from 'lucide-react';
 import { DatabaseSettings } from '../database/localStorage';
 import { database } from '../database/localStorage';
+
+interface Permission {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface UserRole {
+  id: string;
+  name: string;
+  permissions: string[];
+}
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: 'Admin' | 'Cashier' | 'Waiter';
+  password: string;
+  roleId: string;
   avatar?: string;
   createdAt: string;
+  isActive: boolean;
 }
 
 interface SettingsProps {
@@ -22,23 +36,94 @@ interface SettingsProps {
 const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
-  const [activeSettingsTab, setActiveSettingsTab] = useState<'general' | 'users'>('general');
+  const [activeSettingsTab, setActiveSettingsTab] = useState<'general' | 'users' | 'roles'>('general');
+  
+  // Available permissions
+  const [permissions] = useState<Permission[]>([
+    { id: 'pos_access', name: 'POS Access', description: 'Access to POS system and table management' },
+    { id: 'pos_create_order', name: 'Create Orders', description: 'Create new orders for tables' },
+    { id: 'pos_complete_order', name: 'Complete Orders', description: 'Complete and finalize orders' },
+    { id: 'pos_cancel_order', name: 'Cancel Orders', description: 'Cancel existing orders' },
+    { id: 'pos_print_order', name: 'Print Orders', description: 'Print order receipts' },
+    { id: 'table_manage', name: 'Manage Tables', description: 'Add, edit, and delete tables' },
+    { id: 'reports_view', name: 'View Reports', description: 'Access to reports and analytics' },
+    { id: 'reports_export', name: 'Export Reports', description: 'Export reports to PDF/Excel' },
+    { id: 'menu_view', name: 'View Menu', description: 'View menu items and categories' },
+    { id: 'menu_manage', name: 'Manage Menu', description: 'Add, edit, and delete menu items' },
+    { id: 'category_manage', name: 'Manage Categories', description: 'Add and delete menu categories' },
+    { id: 'settings_view', name: 'View Settings', description: 'Access to settings page' },
+    { id: 'settings_manage', name: 'Manage Settings', description: 'Modify system settings' },
+    { id: 'user_manage', name: 'Manage Users', description: 'Add, edit, and delete users' },
+    { id: 'role_manage', name: 'Manage Roles', description: 'Create and modify user roles' },
+    { id: 'database_manage', name: 'Database Management', description: 'Export and import database' }
+  ]);
+
+  // Default roles
+  const [roles, setRoles] = useState<UserRole[]>([
+    {
+      id: 'admin',
+      name: 'Administrator',
+      permissions: permissions.map(p => p.id) // All permissions
+    },
+    {
+      id: 'manager',
+      name: 'Manager',
+      permissions: [
+        'pos_access', 'pos_create_order', 'pos_complete_order', 'pos_cancel_order', 'pos_print_order',
+        'table_manage', 'reports_view', 'reports_export', 'menu_view', 'menu_manage', 'category_manage',
+        'settings_view', 'user_manage'
+      ]
+    },
+    {
+      id: 'cashier',
+      name: 'Cashier',
+      permissions: [
+        'pos_access', 'pos_create_order', 'pos_complete_order', 'pos_print_order',
+        'reports_view', 'menu_view'
+      ]
+    },
+    {
+      id: 'waiter',
+      name: 'Waiter',
+      permissions: [
+        'pos_access', 'pos_create_order', 'menu_view'
+      ]
+    }
+  ]);
+
   const [users, setUsers] = useState<User[]>([
     {
       id: '1',
       name: 'Admin User',
       email: 'admin@restaurant.com',
-      role: 'Admin',
-      createdAt: new Date().toISOString()
+      password: 'admin123',
+      roleId: 'admin',
+      createdAt: new Date().toISOString(),
+      isActive: true
     }
   ]);
+
   const [showUserModal, setShowUserModal] = useState(false);
+  const [showRoleModal, setShowRoleModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingRole, setEditingRole] = useState<UserRole | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
   const [newUser, setNewUser] = useState<Omit<User, 'id' | 'createdAt'>>({
     name: '',
     email: '',
-    role: 'Waiter',
-    avatar: ''
+    password: '',
+    roleId: 'waiter',
+    avatar: '',
+    isActive: true
+  });
+
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
+  const [newRole, setNewRole] = useState<Omit<UserRole, 'id'>>({
+    name: '',
+    permissions: []
   });
   
   const [localSettings, setLocalSettings] = useState(settings || {
@@ -144,8 +229,24 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
   };
 
   const handleAddUser = () => {
-    if (!newUser.name || !newUser.email) {
+    if (!newUser.name || !newUser.email || !newUser.password) {
       alert('Please fill in all required fields.');
+      return;
+    }
+
+    if (newUser.password !== confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
+
+    if (newUser.password.length < 6) {
+      alert('Password must be at least 6 characters long.');
+      return;
+    }
+
+    // Check if email already exists
+    if (users.some(user => user.email === newUser.email)) {
+      alert('Email already exists. Please use a different email.');
       return;
     }
 
@@ -156,22 +257,46 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     };
 
     setUsers([...users, user]);
-    setNewUser({ name: '', email: '', role: 'Waiter', avatar: '' });
+    setNewUser({ name: '', email: '', password: '', roleId: 'waiter', avatar: '', isActive: true });
+    setConfirmPassword('');
     setShowUserModal(false);
   };
 
   const handleEditUser = (user: User) => {
     setEditingUser({ ...user });
+    setConfirmPassword(user.password);
     setShowUserModal(true);
   };
 
   const handleUpdateUser = () => {
     if (!editingUser) return;
 
+    if (!editingUser.name || !editingUser.email || !editingUser.password) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    if (editingUser.password !== confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
+
+    if (editingUser.password.length < 6) {
+      alert('Password must be at least 6 characters long.');
+      return;
+    }
+
+    // Check if email already exists (excluding current user)
+    if (users.some(user => user.email === editingUser.email && user.id !== editingUser.id)) {
+      alert('Email already exists. Please use a different email.');
+      return;
+    }
+
     setUsers(users.map(user => 
       user.id === editingUser.id ? editingUser : user
     ));
     setEditingUser(null);
+    setConfirmPassword('');
     setShowUserModal(false);
   };
 
@@ -184,6 +309,109 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     if (confirm('Are you sure you want to delete this user?')) {
       setUsers(users.filter(user => user.id !== userId));
     }
+  };
+
+  const handleAddRole = () => {
+    if (!newRole.name) {
+      alert('Please enter a role name.');
+      return;
+    }
+
+    if (roles.some(role => role.name.toLowerCase() === newRole.name.toLowerCase())) {
+      alert('Role name already exists. Please use a different name.');
+      return;
+    }
+
+    const role: UserRole = {
+      ...newRole,
+      id: newRole.name.toLowerCase().replace(/\s+/g, '_')
+    };
+
+    setRoles([...roles, role]);
+    setNewRole({ name: '', permissions: [] });
+    setShowRoleModal(false);
+  };
+
+  const handleEditRole = (role: UserRole) => {
+    setEditingRole({ ...role });
+    setShowRoleModal(true);
+  };
+
+  const handleUpdateRole = () => {
+    if (!editingRole) return;
+
+    if (!editingRole.name) {
+      alert('Please enter a role name.');
+      return;
+    }
+
+    // Check if role name already exists (excluding current role)
+    if (roles.some(role => role.name.toLowerCase() === editingRole.name.toLowerCase() && role.id !== editingRole.id)) {
+      alert('Role name already exists. Please use a different name.');
+      return;
+    }
+
+    setRoles(roles.map(role => 
+      role.id === editingRole.id ? editingRole : role
+    ));
+    setEditingRole(null);
+    setShowRoleModal(false);
+  };
+
+  const handleDeleteRole = (roleId: string) => {
+    // Check if any users are using this role
+    const usersWithRole = users.filter(user => user.roleId === roleId);
+    if (usersWithRole.length > 0) {
+      alert(`Cannot delete role. ${usersWithRole.length} user(s) are assigned to this role.`);
+      return;
+    }
+
+    // Don't allow deleting default roles
+    if (['admin', 'manager', 'cashier', 'waiter'].includes(roleId)) {
+      alert('Cannot delete default system roles.');
+      return;
+    }
+
+    if (confirm('Are you sure you want to delete this role?')) {
+      setRoles(roles.filter(role => role.id !== roleId));
+    }
+  };
+
+  const toggleRolePermission = (roleId: string, permissionId: string) => {
+    if (editingRole && editingRole.id === roleId) {
+      const hasPermission = editingRole.permissions.includes(permissionId);
+      if (hasPermission) {
+        setEditingRole({
+          ...editingRole,
+          permissions: editingRole.permissions.filter(p => p !== permissionId)
+        });
+      } else {
+        setEditingRole({
+          ...editingRole,
+          permissions: [...editingRole.permissions, permissionId]
+        });
+      }
+    }
+  };
+
+  const toggleNewRolePermission = (permissionId: string) => {
+    const hasPermission = newRole.permissions.includes(permissionId);
+    if (hasPermission) {
+      setNewRole({
+        ...newRole,
+        permissions: newRole.permissions.filter(p => p !== permissionId)
+      });
+    } else {
+      setNewRole({
+        ...newRole,
+        permissions: [...newRole.permissions, permissionId]
+      });
+    }
+  };
+
+  const getRoleName = (roleId: string) => {
+    const role = roles.find(r => r.id === roleId);
+    return role ? role.name : 'Unknown Role';
   };
 
   const handleSave = () => {
@@ -204,6 +432,8 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
         menuItems: database.getMenuItems(),
         categories: database.getCategories(),
         orderHistory: database.getOrderHistory(),
+        users: users,
+        roles: roles,
         exportDate: new Date().toISOString(),
         version: '1.0'
       };
@@ -265,6 +495,14 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
           localStorage.setItem('restaurant_pos_orderHistory', JSON.stringify(importData.orderHistory));
         }
 
+        // Import users and roles if available
+        if (importData.users) {
+          setUsers(importData.users);
+        }
+        if (importData.roles) {
+          setRoles(importData.roles);
+        }
+
         alert('Database imported successfully! The page will reload to apply changes.');
         window.location.reload();
       } catch (error) {
@@ -311,6 +549,16 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
         >
           {t('userManagement')}
         </button>
+        <button
+          onClick={() => setActiveSettingsTab('roles')}
+          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+            activeSettingsTab === 'roles'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+          }`}
+        >
+          Roles & Permissions
+        </button>
       </div>
 
       {activeSettingsTab === 'general' ? (
@@ -327,7 +575,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">{t('exportDatabase')}</label>
               <p className="text-sm text-gray-600 mb-3">
-                Download a backup of all your restaurant data including settings, tables, menu items, and order history.
+                Download a backup of all your restaurant data including settings, tables, menu items, users, roles, and order history.
               </p>
               <button
                 onClick={handleExportDatabase}
@@ -535,7 +783,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
         </button>
       </div>
       </>
-      ) : (
+      ) : activeSettingsTab === 'users' ? (
         /* User Management Section */
         <div className="space-y-6">
           {/* Add User Button */}
@@ -544,7 +792,8 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
             <button
               onClick={() => {
                 setEditingUser(null);
-                setNewUser({ name: '', email: '', role: 'Waiter', avatar: '' });
+                setNewUser({ name: '', email: '', password: '', roleId: 'waiter', avatar: '', isActive: true });
+                setConfirmPassword('');
                 setShowUserModal(true);
               }}
               className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
@@ -575,15 +824,26 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                       <div>
                         <h4 className="font-semibold text-gray-900">{user.name}</h4>
                         <p className="text-sm text-gray-600">{user.email}</p>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          user.role === 'Admin' 
-                            ? 'bg-red-100 text-red-800'
-                            : user.role === 'Cashier'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-green-100 text-green-800'
-                        }`}>
-                          {t(user.role.toLowerCase())}
-                        </span>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            user.roleId === 'admin' 
+                              ? 'bg-red-100 text-red-800'
+                              : user.roleId === 'manager'
+                              ? 'bg-purple-100 text-purple-800'
+                              : user.roleId === 'cashier'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-green-100 text-green-800'
+                          }`}>
+                            {getRoleName(user.roleId)}
+                          </span>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            user.isActive 
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {user.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <div className="flex space-x-2">
@@ -606,12 +866,77 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
             </div>
           </div>
         </div>
+      ) : (
+        /* Roles & Permissions Section */
+        <div className="space-y-6">
+          {/* Add Role Button */}
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold text-gray-900">Roles & Permissions</h3>
+            <button
+              onClick={() => {
+                setEditingRole(null);
+                setNewRole({ name: '', permissions: [] });
+                setShowRoleModal(true);
+              }}
+              className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Role
+            </button>
+          </div>
+
+          {/* Roles List */}
+          <div className="bg-white rounded-lg shadow-md border border-gray-200">
+            <div className="p-6">
+              <div className="space-y-4">
+                {roles.map((role) => (
+                  <div key={role.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{role.name}</h4>
+                        <p className="text-sm text-gray-600">{role.permissions.length} permissions assigned</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditRole(role)}
+                          className="p-2 text-blue-600 hover:text-blue-700 transition-colors"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRole(role.id)}
+                          disabled={['admin', 'manager', 'cashier', 'waiter'].includes(role.id)}
+                          className="p-2 text-red-600 hover:text-red-700 transition-colors disabled:text-gray-400 disabled:cursor-not-allowed"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {role.permissions.map(permissionId => {
+                        const permission = permissions.find(p => p.id === permissionId);
+                        return permission ? (
+                          <span
+                            key={permissionId}
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                          >
+                            {permission.name}
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* User Modal */}
       {showUserModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-full max-w-md">
+          <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">
@@ -621,6 +946,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                   onClick={() => {
                     setShowUserModal(false);
                     setEditingUser(null);
+                    setConfirmPassword('');
                   }}
                   className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
@@ -657,7 +983,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                         className="flex items-center px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
                       >
                         <ImageIcon className="h-4 w-4 mr-2" />
-                        Upload Avatar (JPG/PNG, 100x100px)
+                        Upload Avatar
                       </label>
                     </div>
                   </div>
@@ -676,6 +1002,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                       }
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter full name"
                   />
                 </div>
 
@@ -692,27 +1019,99 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                       }
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter email address"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={editingUser?.password || newUser.password}
+                      onChange={(e) => {
+                        if (editingUser) {
+                          setEditingUser({ ...editingUser, password: e.target.value });
+                        } else {
+                          setNewUser({ ...newUser, password: e.target.value });
+                        }
+                      }}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter password (min 6 characters)"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Confirm password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('userRole')}</label>
                   <select
-                    value={editingUser?.role || newUser.role}
+                    value={editingUser?.roleId || newUser.roleId}
                     onChange={(e) => {
-                      const role = e.target.value as 'Admin' | 'Cashier' | 'Waiter';
                       if (editingUser) {
-                        setEditingUser({ ...editingUser, role });
+                        setEditingUser({ ...editingUser, roleId: e.target.value });
                       } else {
-                        setNewUser({ ...newUser, role });
+                        setNewUser({ ...newUser, roleId: e.target.value });
                       }
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="Admin">{t('admin')}</option>
-                    <option value="Cashier">{t('cashier')}</option>
-                    <option value="Waiter">{t('waiter')}</option>
+                    {roles.map(role => (
+                      <option key={role.id} value={role.id}>{role.name}</option>
+                    ))}
                   </select>
+                </div>
+
+                <div>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={editingUser?.isActive ?? newUser.isActive}
+                      onChange={(e) => {
+                        if (editingUser) {
+                          setEditingUser({ ...editingUser, isActive: e.target.checked });
+                        } else {
+                          setNewUser({ ...newUser, isActive: e.target.checked });
+                        }
+                      }}
+                      className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Active User</span>
+                  </label>
                 </div>
               </div>
 
@@ -728,11 +1127,104 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                   onClick={() => {
                     setShowUserModal(false);
                     setEditingUser(null);
+                    setConfirmPassword('');
                   }}
                   className="flex-1 flex items-center justify-center px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
                 >
                   <X className="h-4 w-4 mr-2" />
                   {t('cancel')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Role Modal */}
+      {showRoleModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingRole ? 'Edit Role' : 'Add Role'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowRoleModal(false);
+                    setEditingRole(null);
+                  }}
+                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Role Name</label>
+                  <input
+                    type="text"
+                    value={editingRole?.name || newRole.name}
+                    onChange={(e) => {
+                      if (editingRole) {
+                        setEditingRole({ ...editingRole, name: e.target.value });
+                      } else {
+                        setNewRole({ ...newRole, name: e.target.value });
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter role name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Permissions</label>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {permissions.map(permission => (
+                      <div key={permission.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <input
+                          type="checkbox"
+                          id={`permission-${permission.id}`}
+                          checked={editingRole ? editingRole.permissions.includes(permission.id) : newRole.permissions.includes(permission.id)}
+                          onChange={() => {
+                            if (editingRole) {
+                              toggleRolePermission(editingRole.id, permission.id);
+                            } else {
+                              toggleNewRolePermission(permission.id);
+                            }
+                          }}
+                          className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <div className="flex-1">
+                          <label htmlFor={`permission-${permission.id}`} className="text-sm font-medium text-gray-900 cursor-pointer">
+                            {permission.name}
+                          </label>
+                          <p className="text-xs text-gray-600 mt-1">{permission.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-3 mt-6">
+                <button
+                  onClick={editingRole ? handleUpdateRole : handleAddRole}
+                  className="flex-1 flex items-center justify-center px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {editingRole ? 'Update Role' : 'Add Role'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowRoleModal(false);
+                    setEditingRole(null);
+                  }}
+                  className="flex-1 flex items-center justify-center px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel
                 </button>
               </div>
             </div>

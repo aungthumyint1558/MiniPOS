@@ -3,6 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Plus, Edit, Trash2, X, Save, Users, ShoppingCart } from 'lucide-react';
 import { Table, OrderItem } from '../types';
 import { DatabaseSettings } from '../database/sqlite';
+import { generateTableOrderId } from '../utils/orderIdGenerator';
 import TableCard from './TableCard';
 import OrderingSystem from './OrderingSystem';
 import ViewOrderModal from './ViewOrderModal';
@@ -180,11 +181,12 @@ const TableManagement: React.FC<TableManagementProps> = ({
     if (table) {
       const customer = prompt('Enter customer name:');
       if (customer) {
+        const orderId = generateTableOrderId(table.number);
         onUpdateTable({ 
           ...table, 
           status: 'occupied', 
           customer,
-          orderId: `order-${Date.now()}`
+          orderId: orderId
         });
       }
     }

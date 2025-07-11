@@ -90,7 +90,7 @@ const TableCard: React.FC<TableCardProps> = ({
           <p className="text-sm text-gray-600 mt-1 truncate">Customer: {table.customer}</p>
         )}
         {table.orderId && (
-          <p className="text-xs text-blue-600 mt-1 truncate">Order: {table.orderId}</p>
+          <p className="text-xs text-blue-600 mt-1 truncate">Order: {table.orderId.replace('ORD-', '').replace(/-/g, '')}</p>
         )}
         {table.orderTotal && (
           <p className="text-sm text-green-600 mt-1 font-medium">

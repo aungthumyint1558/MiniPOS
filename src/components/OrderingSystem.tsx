@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Minus, ShoppingCart, X, Check, ArrowLeft, Save } from 'lucide-react';
 import { Table, MenuItem, OrderItem } from '../types';
+import { generateTableOrderId } from '../utils/orderIdGenerator';
 
 interface OrderingSystemProps {
   table: Table;
@@ -104,6 +105,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
     }
 
     const total = getTotalAmount();
+    const orderId = table.orderId || generateTableOrderId(table.number);
     onSaveOrder(table.id, orderItems, total);
   };
 
