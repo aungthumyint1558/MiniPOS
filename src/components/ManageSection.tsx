@@ -170,7 +170,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
       <div className="flex space-x-4 mb-6">
         <button
           onClick={() => setActiveTab('menu')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+          className={`px-6 py-3 rounded-lg text-xl font-bold text-white transition-colors ${
             activeTab === 'menu'
               ? 'bg-purple-600 text-white'
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
@@ -180,7 +180,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('categories')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+          className={`px-6 py-3 rounded-lg text-xl font-bold text-white transition-colors ${
             activeTab === 'categories'
               ? 'bg-purple-600 text-white'
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
@@ -194,7 +194,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Add New Menu Item Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
-              <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-6">
+              <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-6 h-20 flex items-center">
                 <h2 className="text-xl font-bold text-white">Add New Menu Item</h2>
               </div>
               
@@ -297,7 +297,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
 
           {/* Menu Items Display Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-6">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-6 h-20 flex items-center">
                 <h2 className="text-xl font-bold text-white">Menu Items</h2>
               </div>
               
@@ -441,7 +441,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Add New Category Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
-            <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-6">
+            <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-t-lg p-6 h-20 flex items-center">
               <h2 className="text-xl font-bold text-white">Add New Category</h2>
             </div>
             
@@ -470,7 +470,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
 
           {/* Categories List Section */}
           <div className="bg-white rounded-lg shadow-md border border-gray-200 h-fit">
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-6">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg p-6 h-20 flex items-center">
               <h2 className="text-xl font-bold text-white">Categories ({categories.length})</h2>
             </div>
             
