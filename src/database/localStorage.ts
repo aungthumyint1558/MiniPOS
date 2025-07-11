@@ -71,14 +71,14 @@ class LocalStorageDatabase {
     // Insert default tables if not exists
     if (!localStorage.getItem(this.storageKeys.tables)) {
       const defaultTables: Table[] = [
-        { id: '1', number: 1, seats: 2, status: 'available', orderId: null, customer: null },
-        { id: '2', number: 2, seats: 4, status: 'occupied', orderId: 'order-1', customer: null },
-        { id: '3', number: 3, seats: 6, status: 'available', orderId: null, customer: null },
-        { id: '4', number: 4, seats: 2, status: 'reserved', orderId: null, customer: 'John Doe' },
-        { id: '5', number: 5, seats: 4, status: 'available', orderId: null, customer: null },
-        { id: '6', number: 6, seats: 8, status: 'occupied', orderId: 'order-2', customer: null },
-        { id: '7', number: 7, seats: 2, status: 'available', orderId: null, customer: null },
-        { id: '8', number: 8, seats: 4, status: 'reserved', orderId: null, customer: 'Jane Smith' },
+        { id: '1', number: 1, seats: 2, status: 'available' },
+        { id: '2', number: 2, seats: 4, status: 'available' },
+        { id: '3', number: 3, seats: 6, status: 'available' },
+        { id: '4', number: 4, seats: 2, status: 'available' },
+        { id: '5', number: 5, seats: 4, status: 'available' },
+        { id: '6', number: 6, seats: 8, status: 'available' },
+        { id: '7', number: 7, seats: 2, status: 'available' },
+        { id: '8', number: 8, seats: 4, status: 'available' },
       ];
       localStorage.setItem(this.storageKeys.tables, JSON.stringify(defaultTables));
     }
@@ -98,58 +98,7 @@ class LocalStorageDatabase {
 
     // Insert default order history if not exists
     if (!localStorage.getItem(this.storageKeys.orderHistory)) {
-      const defaultOrderHistory = [
-        {
-          id: 'ORD001',
-          tableNumber: 2,
-          customerName: 'John Doe',
-          orderDate: '2024-01-15',
-          status: 'completed',
-          total: 25000,
-          items: JSON.stringify([{ id: '1', name: 'Mohinga', price: 2500, quantity: 2 }]),
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'ORD002',
-          tableNumber: 4,
-          customerName: 'Jane Smith',
-          orderDate: '2024-01-14',
-          status: 'completed',
-          total: 18500,
-          items: JSON.stringify([{ id: '2', name: 'Samosa Thoke', price: 2000, quantity: 1 }]),
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'ORD003',
-          tableNumber: 1,
-          customerName: 'Mike Johnson',
-          orderDate: '2024-01-13',
-          status: 'completed',
-          total: 32000,
-          items: JSON.stringify([{ id: '3', name: 'Shan Noodles', price: 3500, quantity: 1 }]),
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'ORD004',
-          tableNumber: 6,
-          customerName: 'Sarah Wilson',
-          orderDate: '2024-01-12',
-          status: 'completed',
-          total: 27500,
-          items: JSON.stringify([{ id: '4', name: 'Tea Leaf Salad', price: 2800, quantity: 1 }]),
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'ORD005',
-          tableNumber: 3,
-          customerName: 'David Brown',
-          orderDate: '2024-01-11',
-          status: 'completed',
-          total: 21000,
-          items: JSON.stringify([{ id: '5', name: 'Coconut Rice', price: 1500, quantity: 1 }]),
-          createdAt: new Date().toISOString()
-        }
-      ];
+      const defaultOrderHistory: any[] = [];
       localStorage.setItem(this.storageKeys.orderHistory, JSON.stringify(defaultOrderHistory));
     }
   }
