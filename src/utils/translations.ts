@@ -524,7 +524,7 @@ export const translations = {
     
     // Settings page
     configureRestaurantPOS: 'သင့်စားသောက်ဆိုင် POS စနစ်ကိုပြင်ဆင်သတ်မှတ်ပါ',
-    configureYourRestaurantPOS: 'Configure your restaurant POS system',
+    configureYourRestaurantPOS: 'သင့်စားသောက်ဆိုင် POS စနစ်ကိုပြင်ဆင်သတ်မှတ်ပါ',
     seats: '{count} ခုံ',
     seatsMyanmar: '{count} ယောက်ထိုင်ခုံ',
     chooseFile: 'ဖိုင်ရွေးချယ်ရန်',
@@ -581,7 +581,7 @@ export const translations = {
     
     // Numbers and quantities
     qty: 'အရေအတွက်',
-    amount: 'ပမာណ',
+    amount: 'ပမာဏ',
     count: 'ရေတွက်',
     number: 'နံပါတ်',
     
