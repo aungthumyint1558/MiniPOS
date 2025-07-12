@@ -10,7 +10,7 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<'en' | 'my'>('en');
+  const [language, setLanguageState] = useState<'en' | 'my'>('en'); // Default to English
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('pos_language') as 'en' | 'my';

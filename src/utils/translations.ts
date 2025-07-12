@@ -109,7 +109,7 @@ export const translations = {
     deleteCategory: 'Delete Category',
     thisActionCannotBeUndone: 'This action cannot be undone.',
     appetizers: 'Appetizers',
-    mainCourse: 'Main Course',
+    mainMenu: 'Main Menu',
     pasta: 'Pasta',
     pizza: 'Pizza',
     dessert: 'Dessert',
@@ -225,7 +225,7 @@ export const translations = {
     invalidUsernameOrPassword: 'Invalid username/email or password',
     
     // Settings page
-    configureRestaurantPOS: 'Configure your restaurant POS system',
+    configureRestaurantPOS: 'သင့်စားသောက်ဆိုင် POS စနစ်ကိုပြင်ဆင်သတ်မှတ်ပါ',
     seats: '{count} seats',
     seatsMyanmar: '{count} ယောက်ထိုင်ခုံ',
     chooseFile: 'Choose File',
@@ -407,7 +407,7 @@ export const translations = {
     deleteCategory: 'အမျိုးအစားဖျက်ရန်',
     thisActionCannotBeUndone: 'ဤလုပ်ဆောင်ချက်ကိုပြန်လည်ပြင်ဆင်၍မရပါ။',
     appetizers: 'ခေါက်ဆွဲ/အစားအစာများ',
-    mainCourse: 'ပင်မအစားအစာ',
+    mainMenu: 'ပင်မမီနူး',
     pasta: 'ပါစတာ',
     pizza: 'ပီဇာ',
     dessert: 'အချိုပွဲ',
