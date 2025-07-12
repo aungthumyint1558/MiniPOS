@@ -2,7 +2,7 @@ import React from 'react';
 import { Users, Clock, CheckCircle2, Coffee, Eye } from 'lucide-react';
 import { Table } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getTableName } from '../utils/translations';
+import { getTableName, getSeatCount } from '../utils/translations';
 
 interface TableCardProps {
   table: Table;
@@ -80,7 +80,7 @@ const TableCard: React.FC<TableCardProps> = ({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <Users className="h-4 w-4 text-gray-500" />
-          <span className="text-sm text-gray-600">{table.seats} seats</span>
+          <span className="text-sm text-gray-600">{getSeatCount(table.seats, language)}</span>
         </div>
         <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(table.status)}`}>
           {getStatusIcon(table.status)}

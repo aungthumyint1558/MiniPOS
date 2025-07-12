@@ -3,7 +3,7 @@ import { Plus, Minus, ShoppingCart, X, Check, ArrowLeft, Save } from 'lucide-rea
 import { Table, MenuItem, OrderItem } from '../types';
 import { generateTableOrderId } from '../utils/orderIdGenerator';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getTableName } from '../utils/translations';
+import { getTableName, getSeatCount } from '../utils/translations';
 
 interface OrderingSystemProps {
   table: Table;
@@ -125,7 +125,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
           </button>
           <div className="text-center flex-1">
             <h2 className="text-lg font-bold text-white">{getTableName(table.number, language)}</h2>
-            <p className="text-blue-100 text-sm">{table.seats} seats</p>
+            <p className="text-blue-100 text-sm">{getSeatCount(table.seats, language)}</p>
           </div>
           <div className="text-right">
             <div className="text-lg font-bold text-white">MMK {getTotalAmount().toLocaleString()}</div>
@@ -147,7 +147,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
               </button>
               <div>
                 <h2 className="text-2xl font-bold text-white">{getTableName(table.number, language)} - Order</h2>
-                <p className="text-blue-100">{table.seats} seats • {table.customer || 'No customer assigned'}</p>
+                <p className="text-blue-100">{getSeatCount(table.seats, language)} • {table.customer || 'No customer assigned'}</p>
               </div>
             </div>
             <div className="text-right">

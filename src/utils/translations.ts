@@ -226,6 +226,8 @@ export const translations = {
     
     // Settings page
     configureRestaurantPOS: 'Configure your restaurant POS system',
+    seats: '{count} seats',
+    seatsMyanmar: '{count} ယောက်ထိုင်ခုံ',
     chooseFile: 'Choose File',
     active: 'Active',
     inactive: 'Inactive',
@@ -522,6 +524,8 @@ export const translations = {
     
     // Settings page
     configureRestaurantPOS: 'သင့်စားသောက်ဆိုင် POS စနစ်ကိုပြင်ဆင်သတ်မှတ်ပါ',
+    seats: '{count} ခုံ',
+    seatsMyanmar: '{count} ယောက်ထိုင်ခုံ',
     chooseFile: 'ဖိုင်ရွေးချယ်ရန်',
     active: 'သက်ဝင်',
     inactive: 'မသက်ဝင်',
@@ -617,4 +621,12 @@ export const getTableName = (tableNumber: number, language: string = 'en'): stri
     return `စားပွဲ ${toMyanmarNumber(tableNumber)}`;
   }
   return `Table ${tableNumber}`;
+};
+
+// Helper function to get seat count with proper translation
+export const getSeatCount = (seatCount: number, language: string = 'en'): string => {
+  if (language === 'my') {
+    return `${toMyanmarNumber(seatCount)} ယောက်ထိုင်ခုံ`;
+  }
+  return `${seatCount} seats`;
 };

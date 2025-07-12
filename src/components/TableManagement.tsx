@@ -315,6 +315,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
                     value={editingTable.seats}
                     onChange={(e) => setEditingTable({ ...editingTable, seats: parseInt(e.target.value) })}
                     className="w-full px-3 py-2 text-sm lg:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder={getSeatCount(4, language)}
                   />
                 </div>
                 <div>
