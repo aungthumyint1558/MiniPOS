@@ -5,8 +5,8 @@
 /* Myanmar Font */
 @import url('https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;500;600;700&display=swap');
 
-/* Apply Myanmar font when language is Myanmar */
-.myanmar-font {
+/* Apply Pyidaungsu font for both English and Myanmar */
+body {
   font-family: 'Pyidaungsu', 'Myanmar Text', sans-serif !important;
 }
 
