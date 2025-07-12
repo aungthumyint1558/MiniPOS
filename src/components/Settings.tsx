@@ -244,7 +244,7 @@ const Settings: React.FC<SettingsProps> = ({
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg p-4 lg:p-6 mb-4 lg:mb-6">
           <h2 className="text-xl font-bold text-white">{t('settings')}</h2>
-          <p className="text-purple-100 text-sm lg:text-base">{t('configureRestaurantPOS')}</p>
+          <p className="text-purple-100 text-sm lg:text-base">Configure your restaurant POS system</p>
         </div>
 
         {/* Navigation Tabs */}
