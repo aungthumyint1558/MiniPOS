@@ -30,7 +30,7 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
       setIsExportingToGDrive(true);
       
       // Check if Google Drive is connected
-      if (!googleDriveService.isConnected()) {
+      if (!googleDriveService.getConnection().isConnected) {
         alert('Please connect to Google Drive first in Settings.');
         return;
       }
