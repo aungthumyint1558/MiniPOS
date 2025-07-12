@@ -25,6 +25,65 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
   const [emailMessage, setEmailMessage] = useState('');
   const [isExportingToGDrive, setIsExportingToGDrive] = useState(false);
 
+  const handleExportToGoogleDrive = async () => {
+    try {
+      setIsExportingToGDrive(true);
+      
+      // Check if Google Drive is connected
+      if (!googleDriveService.isConnected()) {
+        alert('Please connect to Google Drive first in Settings.');
+        return;
+      }
+
+      const dataToExport = filteredOrders.length > 0 ? filteredOrders : orderHistory;
+      
+      // Prepare export data
+      const exportData = {
+        reportType: 'Order History Report',
+        generatedAt: new Date().toISOString(),
+        dateFilter: selectedDate || 'All dates',
+        summary: {
+          totalOrders: dataToExport.length,
+          totalRevenue: dataToExport.reduce((sum, order) => sum + order.total, 0),
+          availableTables,
+          occupiedTables,
+          reservedTables
+        },
+        orders: dataToExport.map(order => ({
+          id: order.id,
+          tableNumber: order.tableNumber,
+          customerName: order.customerName,
+          orderDate: order.orderDate,
+          status: order.status,
+          total: order.total,
+          items: order.items || []
+        })),
+        tableStatus: {
+          available: availableTables,
+          occupied: occupiedTables,
+          reserved: reservedTables,
+          total: tables.length
+        }
+      };
+
+      // Generate filename
+      const currentDate = new Date().toISOString().split('T')[0];
+      const filename = selectedDate 
+        ? `order-history-${selectedDate}.json`
+        : `order-history-${currentDate}.json`;
+
+      // Export to Google Drive
+      await googleDriveService.uploadFile(filename, JSON.stringify(exportData, null, 2));
+      
+      alert(`Report successfully exported to Google Drive as "${filename}"`);
+    } catch (error) {
+      console.error('Google Drive export error:', error);
+      alert('Failed to export to Google Drive. Please check your connection and try again.');
+    } finally {
+      setIsExportingToGDrive(false);
+    }
+  };
+
   // Calculate table status counts
   const availableTables = tables.filter(table => table.status === 'available').length;
   const occupiedTables = tables.filter(table => table.status === 'occupied').length;
