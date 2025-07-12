@@ -7,6 +7,7 @@ import { generateTableOrderId } from '../utils/orderIdGenerator';
 import TableCard from './TableCard';
 import OrderingSystem from './OrderingSystem';
 import ViewOrderModal from './ViewOrderModal';
+import { getTableName } from '../utils/translations';
 
 interface TableManagementProps {
   tables: Table[];
@@ -33,7 +34,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
   onCompleteOrder,
   settings
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [orderingTable, setOrderingTable] = useState<Table | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -215,7 +216,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-white">{t('tables')}</h2>
-              <p className="text-blue-100 text-sm lg:text-base">Manage your restaurant tables efficiently</p>
+              <p className="text-blue-100 text-sm lg:text-base">{t('manageTablesEfficiently')}</p>
             </div>
             <div className="flex flex-wrap gap-2 lg:space-x-3 lg:gap-0">
               <button
@@ -265,7 +266,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
           </div>
           {selectedTable && (
             <div className="mt-3 lg:mt-4 text-blue-100 text-sm lg:text-base">
-              {t('tableNumber', { number: tables.find(t => t.id === selectedTable)?.number })}
+              {getTableName(tables.find(t => t.id === selectedTable)?.number || 0, language)}
             </div>
           )}
         </div>
@@ -296,7 +297,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
         {showEditModal && editingTable && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg p-4 lg:p-6 w-full max-w-md">
-              <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4">Edit Table {editingTable.number}</h3>
+              <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4">Edit {getTableName(editingTable.number, language)}</h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs lg:text-sm font-medium text-gray-700 mb-1">Table Number</label>
@@ -366,7 +367,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
             <div className="bg-white rounded-lg p-4 lg:p-6 w-full max-w-md">
               <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4">{t('deleteTable')}</h3>
               <p className="text-sm lg:text-base text-gray-600 mb-6">
-                {t('deleteTableConfirm')} {tables.find(t => t.id === tableToDelete)?.number}? {t('actionCannotBeUndone')}
+                {t('deleteTableConfirm')} {getTableName(tables.find(t => t.id === tableToDelete)?.number || 0, language)}? {t('actionCannotBeUndone')}
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button

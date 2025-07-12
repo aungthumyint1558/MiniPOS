@@ -321,7 +321,7 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
             <div>
               <h2 className="text-xl font-bold text-white">{t('reportsAnalytics')}</h2>
-              <p className="text-blue-100 text-sm lg:text-base">Track your restaurant performance and analyze detailed order data</p>
+              <p className="text-blue-100 text-sm lg:text-base">{t('trackPerformanceDetailed')}</p>
               {selectedDate && (
                 <div className="mt-2 text-blue-100 text-sm">
                   {t('filterDate')}: {selectedDate}

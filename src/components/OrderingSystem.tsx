@@ -3,6 +3,7 @@ import { Plus, Minus, ShoppingCart, X, Check, ArrowLeft, Save } from 'lucide-rea
 import { Table, MenuItem, OrderItem } from '../types';
 import { generateTableOrderId } from '../utils/orderIdGenerator';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getTableName } from '../utils/translations';
 
 interface OrderingSystemProps {
   table: Table;
@@ -25,7 +26,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
   serviceChargeEnabled,
   taxRate
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [orderItems, setOrderItems] = useState<OrderItem[]>(table.orderItems || []);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
@@ -123,7 +124,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="text-center flex-1">
-            <h2 className="text-lg font-bold text-white">Table {table.number}</h2>
+            <h2 className="text-lg font-bold text-white">{getTableName(table.number, language)}</h2>
             <p className="text-blue-100 text-sm">{table.seats} seats</p>
           </div>
           <div className="text-right">
@@ -145,7 +146,7 @@ const OrderingSystem: React.FC<OrderingSystemProps> = ({
                 <ArrowLeft className="h-6 w-6" />
               </button>
               <div>
-                <h2 className="text-2xl font-bold text-white">Table {table.number} - Order</h2>
+                <h2 className="text-2xl font-bold text-white">{getTableName(table.number, language)} - Order</h2>
                 <p className="text-blue-100">{table.seats} seats • {table.customer || 'No customer assigned'}</p>
               </div>
             </div>

@@ -214,6 +214,10 @@ export const translations = {
     orderItems: 'Order Items',
     moreItems: 'more items',
     
+    // Performance and table management
+    trackPerformanceDetailed: 'Track your restaurant performance and analyze detailed order data',
+    manageTablesEfficiently: 'Manage your restaurant tables efficiently',
+    
     // Login page
     usernameOrEmail: 'Username or Email',
     enterUsernameOrEmail: 'Enter username or email',
@@ -506,6 +510,10 @@ export const translations = {
     orderItems: 'အော်ဒါပစ္စည်းများ',
     moreItems: 'နောက်ထပ်ပစ္စည်းများ',
     
+    // Performance and table management
+    trackPerformanceDetailed: 'သင့်စားသောက်ဆိုင်၏ စွမ်းဆောင်ရည်ကို ခြေရာခံပြီး အော်ဒါအချက်အလက်များကို အသေးစိတ်ခွဲခြမ်းစိတ်ဖြာပါ',
+    manageTablesEfficiently: 'သင့်စားသောက်ဆိုင်၏စားပွဲများကို ထိရောက်စွာစီမံပါ',
+    
     // Login page
     usernameOrEmail: 'အသုံးပြုသူအမည် သို့မဟုတ် အီးမေးလ်',
     enterUsernameOrEmail: 'အသုံးပြုသူအမည် သို့မဟုတ် အီးမေးလ်ရိုက်ထည့်ပါ',
@@ -595,4 +603,18 @@ export const getTranslation = (key: string, language: string = 'en', params?: Re
   }
   
   return translation;
+};
+
+// Helper function to convert numbers to Myanmar numerals
+export const toMyanmarNumber = (num: number): string => {
+  const myanmarNumerals = ['၀', '၁', '၂', '၃', '၄', '၅', '၆', '၇', '၈', '၉'];
+  return num.toString().split('').map(digit => myanmarNumerals[parseInt(digit)]).join('');
+};
+
+// Helper function to get table name with proper translation
+export const getTableName = (tableNumber: number, language: string = 'en'): string => {
+  if (language === 'my') {
+    return `စားပွဲ ${toMyanmarNumber(tableNumber)}`;
+  }
+  return `Table ${tableNumber}`;
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { Users, Clock, CheckCircle2, Coffee, Eye } from 'lucide-react';
 import { Table } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getTableName } from '../utils/translations';
 
 interface TableCardProps {
   table: Table;
@@ -22,7 +23,7 @@ const TableCard: React.FC<TableCardProps> = ({
   onViewOrder,
   isSelected = false 
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -88,7 +89,7 @@ const TableCard: React.FC<TableCardProps> = ({
       </div>
       
       <div className="text-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Table {table.number}</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{getTableName(table.number, language)}</h3>
         {table.customer && (
           <p className="text-sm text-gray-600 mt-1 truncate">Customer: {table.customer}</p>
         )}

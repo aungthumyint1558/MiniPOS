@@ -3,6 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { X, ShoppingCart, Clock, User, Receipt, Check, Printer } from 'lucide-react';
 import { printOrder } from '../utils/printOrder';
 import { Table } from '../types';
+import { getTableName } from '../utils/translations';
 
 interface ViewOrderModalProps {
   table: Table;
@@ -23,7 +24,7 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
   serviceChargeEnabled,
   taxRate 
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const getSubtotal = () => {
     if (!Array.isArray(table.orderItems)) return 0;
@@ -111,6 +112,7 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
               <div>
                 <h2 className="text-lg sm:text-xl font-bold text-white">{t('orderDetails')}</h2>
                 <p className="text-blue-100 text-sm">{t('tableNumber', { number: table.number })}</p>
+                <p className="text-blue-100 text-sm">{getTableName(table.number, language)}</p>
               </div>
             </div>
             <button
