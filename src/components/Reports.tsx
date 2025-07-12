@@ -378,10 +378,20 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
               
               <button
                 onClick={handleExportToGoogleDrive}
+                disabled={isExportingToGDrive}
                 className="flex items-center px-4 py-2 text-sm font-medium text-blue-100 bg-blue-500 rounded-md hover:bg-blue-400 transition-colors min-w-[150px] h-10"
               >
-                <Cloud className="h-4 w-4 mr-2" />
-                Export to Google Drive
+                {isExportingToGDrive ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    <Cloud className="h-4 w-4 mr-2" />
+                    Export to Google Drive
+                  </>
+                )}
               </button>
             </div>
           </div>
