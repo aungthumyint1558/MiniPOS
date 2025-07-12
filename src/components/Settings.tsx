@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { Save, Upload, Download, Trash2, Plus, Edit, X, User, Shield } from 'lucide-react';
+import { Save, Upload, Download, Trash2, Plus, Edit, X, User, Shield, Cloud } from 'lucide-react';
 import { DatabaseSettings } from '../database/localStorage';
+import GoogleDriveSettings from './GoogleDriveSettings';
 
 interface SettingsProps {
   settings: DatabaseSettings | null;
@@ -234,6 +235,7 @@ const Settings: React.FC<SettingsProps> = ({
 
   const tabs = [
     { id: 'general', label: t('generalSettings'), icon: Save },
+    { id: 'gdrive', label: 'Google Drive', icon: Cloud },
     ...(canManageUsers ? [{ id: 'users', label: t('userManagement'), icon: User }] : []),
     ...(canManageRoles ? [{ id: 'roles', label: t('rolesPermissions'), icon: Shield }] : [])
   ];
@@ -439,6 +441,15 @@ const Settings: React.FC<SettingsProps> = ({
                   </button>
                 </div>
               </div>
+            )}
+
+            {activeTab === 'gdrive' && (
+              <GoogleDriveSettings 
+                onExportToGoogleDrive={async (data) => {
+                  // Optional callback for additional processing after export
+                  console.log('Data exported to Google Drive:', data);
+                }}
+              />
             )}
 
             {activeTab === 'users' && canManageUsers && (

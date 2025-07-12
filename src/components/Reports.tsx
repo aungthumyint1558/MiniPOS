@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Calendar, Trash2, Download, BarChart3, FileText, Mail } from 'lucide-react';
+import { Calendar, Trash2, Download, BarChart3, FileText, Mail, Cloud } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Table } from '../types';
 import * as XLSX from 'xlsx';
+import { googleDriveService } from '../utils/googleDrive';
 
 interface ReportsProps {
   tables?: Table[];
@@ -22,6 +23,7 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
   const [emailRecipient, setEmailRecipient] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailMessage, setEmailMessage] = useState('');
+  const [isExportingToGDrive, setIsExportingToGDrive] = useState(false);
 
   // Calculate table status counts
   const availableTables = tables.filter(table => table.status === 'available').length;
@@ -372,6 +374,14 @@ const Reports: React.FC<ReportsProps> = ({ tables = [], orderHistory = [], onCle
               >
                 <Download className="h-4 w-4 mr-2" />
                 {t('exportToExcel')}
+              </button>
+              
+              <button
+                onClick={handleExportToGoogleDrive}
+                className="flex items-center px-4 py-2 text-sm font-medium text-blue-100 bg-blue-500 rounded-md hover:bg-blue-400 transition-colors min-w-[150px] h-10"
+              >
+                <Cloud className="h-4 w-4 mr-2" />
+                Export to Google Drive
               </button>
             </div>
           </div>
