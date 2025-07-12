@@ -188,7 +188,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
   const getCategoryStats = () => {
     return categories.map(category => ({
       name: category,
-      translatedName: t(category.toLowerCase().replace(/\s+/g, '')),
+      translatedName: category, // Don't translate category names, show them as-is
       count: menuItems.filter(item => item.category === category).length,
       totalValue: menuItems
         .filter(item => item.category === category)
@@ -339,7 +339,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                     groupedItems[category]?.length > 0 && (
                       <div key={category} className="space-y-3">
                         <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
-                          {t(category.toLowerCase().replace(/\s+/g, ''))}
+                          {category}
                         </h3>
                         {groupedItems[category].map((item) => (
                           <div key={item.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -541,7 +541,6 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="font-semibold text-gray-900">{category.translatedName}</h4>
-                          <p className="text-xs text-gray-500">{category.name}</p>
                           <p className="text-sm text-gray-600">
                             {category.count} {t('items')} • {t('totalValue')}: MMK {category.totalValue.toLocaleString()}
                           </p>
