@@ -262,7 +262,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none bg-white"
                     >
                       {categories.map(category => (
-                        <option key={category} value={category}>{t(category.toLowerCase().replace(/\s+/g, ''))}</option>
+                        <option key={category} value={category}>{category}</option>
                       ))}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
@@ -339,7 +339,7 @@ const ManageSection: React.FC<ManageSectionProps> = ({
                     groupedItems[category]?.length > 0 && (
                       <div key={category} className="space-y-3">
                         <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
-                          {category}
+                          {t(category.toLowerCase().replace(/\s+/g, ''))}
                         </h3>
                         {groupedItems[category].map((item) => (
                           <div key={item.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
